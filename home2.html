@@ -1,0 +1,1403 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Escape Room & Axe Throwing | VenueDash</title>
+  <meta name="description" content="Dashboard for booking rooms, digital waivers, team rosters & safety demos.">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ----- GLOBAL VARIABLES (Light / Dark) ----- */
+    :root {
+      --bg-color: #f8fafc;
+      --nav-bg: rgba(255, 255, 255, 0.85);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --accent-color: #6366f1;
+      --accent-hover: #4f46e5;
+      --border-color: rgba(0, 0, 0, 0.1);
+      --dropdown-bg: rgba(255, 255, 255, 0.95);
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #0f172a;
+      --nav-bg: rgba(15, 23, 42, 0.85);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent-color: #38bdf8;
+      --accent-hover: #0ea5e9;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --dropdown-bg: rgba(15, 23, 42, 0.95);
+      --shadow-color: rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Navbar */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: var(--nav-bg);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      z-index: 1000;
+      padding: 0 1.5rem;
+      transition: var(--transition);
+    }
+
+    .nav-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 80px;
+      gap: 1rem;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-primary);
+      font-weight: 700;
+      font-size: 1.4rem;
+      white-space: nowrap;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      color: var(--accent-color);
+      filter: drop-shadow(0 0 8px var(--accent-color));
+    }
+
+    /* Desktop navigation */
+    .nav-menu {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      list-style: none;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .nav-item {
+      position: relative;
+      white-space: nowrap;
+    }
+
+    .nav-link {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 0.5rem 0.7rem;
+      border-radius: 8px;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .nav-link:hover {
+      color: var(--accent-color);
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    /* Desktop action buttons */
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      white-space: nowrap;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 1rem;
+    }
+
+    .icon-btn:hover {
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+
+    .login-btn {
+      background: var(--accent-color);
+      color: #fff !important;
+      text-decoration: none;
+      padding: 0.5rem 1.25rem;
+      border-radius: 20px;
+      font-weight: 600;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Dropdowns */
+    .dropdown-menu {
+      position: absolute;
+      top: 120%;
+      left: 0;
+      background: var(--dropdown-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      min-width: 200px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      box-shadow: 0 10px 25px var(--shadow-color);
+      padding: 0.5rem 0;
+    }
+
+    .nav-item.dropdown:hover .dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .nav-item.dropdown:hover .nav-link i {
+      transform: rotate(180deg);
+    }
+
+    .dropdown-link {
+      display: block;
+      padding: 0.75rem 1.5rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .dropdown-link:hover {
+      color: var(--text-primary);
+      background: rgba(99, 102, 241, 0.05);
+      padding-left: 2rem;
+    }
+
+    .nav-item:nth-last-child(2) .dropdown-menu {
+      right: 0;
+      left: auto;
+    }
+
+    /* Mobile elements */
+    .hamburger {
+      display: none;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .mobile-nav-action {
+      display: none;
+    }
+
+    /* Main content */
+    .main-content {
+      flex: 1;
+      margin-top: 80px;
+      padding: 6rem 2rem;
+      text-align: center;
+      background: radial-gradient(circle at center, rgba(99, 102, 241, 0.05) 0%, transparent 60%);
+    }
+
+    .main-title {
+      font-size: 3.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent-color), var(--text-primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .main-subtitle {
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      max-width: 650px;
+      margin: 1rem auto 0;
+    }
+
+    /* ========== FOOTER STYLES ========== */
+    .footer {
+      background: var(--dropdown-bg);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border-color);
+      padding: 3rem 2rem 1.5rem;
+      margin-top: auto;
+    }
+
+    .footer-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .footer-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .footer-brand {
+      flex: 1;
+      min-width: 250px;
+      max-width: 320px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-primary);
+      font-weight: 700;
+      font-size: 1.4rem;
+      white-space: nowrap;
+      margin-bottom: 1rem;
+    }
+
+    .footer-description {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      max-width: 260px;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      flex: 2;
+      justify-content: space-between;
+    }
+
+    .footer-column {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .footer-column h4 {
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .footer-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+
+    .footer-link:hover {
+      color: var(--accent-color);
+      transform: translateX(4px);
+    }
+
+    .footer-actions {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .footer-icon-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 1rem;
+    }
+
+    .footer-icon-btn:hover {
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    /* Responsive footer */
+    @media (max-width: 991px) {
+      .footer-grid {
+        flex-direction: column;
+        gap: 2rem;
+      }
+      .footer-links {
+        gap: 2.5rem;
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .footer-column {
+        flex: 1 1 200px;
+      }
+    }
+
+    @media (max-width: 800px) {
+      .main-title {
+        font-size: 2.5rem;
+      }
+      .footer-column {
+        flex: 1 1 45%;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .main-title {
+        font-size: 2rem;
+      }
+      .main-subtitle {
+        font-size: 1rem;
+      }
+      .main-content {
+        padding: 4rem 1.5rem;
+      }
+      .footer {
+        padding: 2rem 1.5rem 1rem;
+      }
+      .footer-links {
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      .footer-column, .newsletter-col {
+        max-width: 100% !important;
+        flex: 1 1 auto;
+      }
+    }
+
+    /* RESPONSIVE (tablet & mobile) for navbar */
+    @media (max-width: 1200px) {
+      .nav-link {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.4rem;
+      }
+      .nav-menu {
+        gap: 0.1rem;
+      }
+      .nav-actions {
+        gap: 0.4rem;
+      }
+      .login-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+      }
+    }
+
+    @media (max-width: 991px) {
+      .nav-actions {
+        display: none;
+      }
+      .hamburger {
+        display: block;
+        z-index: 1001;
+      }
+
+      .nav-menu {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 280px;
+        height: 100vh;
+        height: 100dvh;
+        background: var(--dropdown-bg);
+        backdrop-filter: blur(20px);
+        border-left: 1px solid var(--border-color);
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        padding: 90px 1.2rem 1.5rem;
+        transition: 0.35s cubic-bezier(0.77, 0, 0.175, 1);
+        box-shadow: -10px 0 30px var(--shadow-color);
+        overflow-y: auto;
+        gap: 0;
+        flex-wrap: nowrap;
+      }
+
+      html[dir="rtl"] .nav-menu {
+        right: auto;
+        left: -100%;
+        border-left: none;
+        border-right: 1px solid var(--border-color);
+      }
+
+      .nav-menu.active {
+        right: 0;
+      }
+      html[dir="rtl"] .nav-menu.active {
+        left: 0;
+        right: auto;
+      }
+
+      .nav-item {
+        width: 100%;
+        white-space: normal;
+      }
+
+      .nav-link {
+        width: 100%;
+        padding: 0.7rem 0;
+        font-size: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        border-radius: 0;
+      }
+
+      .dropdown-menu {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        max-height: 0;
+        overflow: hidden;
+        padding: 0;
+        transition: max-height 0.3s ease;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+      }
+
+      .nav-item.dropdown.active .dropdown-menu {
+        max-height: 200px;
+        padding: 0.3rem 0 0.3rem 1rem;
+      }
+
+      .dropdown-link {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
+
+      .mobile-nav-action {
+        display: flex;
+        width: 100%;
+        margin-top: 0.5rem;
+        border-top: 1px solid var(--border-color);
+        flex-direction: column;
+        gap: 0.4rem;
+        padding-top: 0.8rem;
+      }
+
+      .mobile-action-btn {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.5rem 0.8rem;
+        border-radius: 40px;
+        width: 100%;
+        justify-content: center;
+        gap: 10px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+      }
+
+      .mobile-action-btn:hover {
+        background: rgba(99, 102, 241, 0.1);
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+      }
+
+      .mobile-login-link {
+        background: var(--accent-color);
+        color: white !important;
+        text-decoration: none;
+        border: none;
+      }
+
+      .mobile-login-link:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+      }
+    }
+
+    /* Home 2 Specific Styles */
+    .main-content-home2 {
+      width: 100%;
+      padding-top: 80px;
+    }
+    
+    section {
+      padding: 6rem 2rem;
+      position: relative;
+    }
+    
+    .section-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .text-center { text-align: center; }
+    .text-white { color: #fff !important; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .mt-4 { margin-top: 2rem; }
+    
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--accent-color), var(--text-primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .section-desc {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      max-width: 700px;
+      margin-bottom: 3rem;
+      line-height: 1.6;
+    }
+    
+    .text-center .section-desc {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    /* Buttons */
+    .btn-primary, .btn-secondary, .btn-outline {
+      display: inline-block;
+      padding: 0.8rem 1.8rem;
+      border-radius: 30px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: var(--transition);
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      font-size: 1rem;
+    }
+    
+    .btn-primary {
+      background: var(--accent-color);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+    
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+    
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-3px);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      color: var(--text-primary);
+      border: 2px solid var(--accent-color);
+    }
+    
+    .btn-outline:hover {
+      background: var(--accent-color);
+      color: #fff;
+    }
+
+    /* 1. Split Hero Section */
+    .split-hero {
+      display: flex;
+      height: calc(100vh - 80px);
+      min-height: 600px;
+      padding: 0;
+      margin-top: -80px;
+      padding-top: 80px;
+    }
+    
+    .split-side {
+      flex: 1;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      transition: flex 0.5s ease;
+      cursor: pointer;
+      border-right: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .split-side:last-child {
+      border-right: none;
+    }
+    
+    .split-side:hover {
+      flex: 1.2;
+    }
+    
+    .split-hero-content {
+      z-index: 2;
+      padding: 2rem;
+    }
+    
+    .split-hero-title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 15px rgba(0,0,0,0.8);
+    }
+    
+    .split-side p {
+      color: #e2e8f0;
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      text-shadow: 0 1px 5px rgba(0,0,0,0.8);
+    }
+
+    /* Split Layouts General */
+    .split-layout {
+      display: flex;
+      align-items: center;
+      gap: 4rem;
+    }
+    
+    .split-layout.reverse {
+      flex-direction: row-reverse;
+    }
+    
+    .split-text { flex: 1; }
+    .split-image {
+      flex: 1;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px var(--shadow-color);
+    }
+    
+    .split-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+    
+    .split-image:hover img {
+      transform: scale(1.05);
+    }
+    
+    .feature-list {
+      list-style: none;
+      margin-top: 1.5rem;
+    }
+    
+    .feature-list li {
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+    
+    .feature-list i {
+      color: var(--accent-color);
+      font-size: 1.2rem;
+    }
+
+    /* 2. Blackout Section */
+    .blackout-section {
+      background-size: cover;
+      background-position: right center;
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .blackout-content {
+      max-width: 600px;
+    }
+    
+    .badge-danger {
+      display: inline-block;
+      background: #ef4444;
+      color: #fff;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* 3. Leaderboards */
+    .leaderboard-section { background: var(--bg-color); }
+    
+    .leaderboard-table {
+      background: var(--dropdown-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+      box-shadow: 0 10px 25px var(--shadow-color);
+    }
+    
+    .lb-row {
+      display: grid;
+      grid-template-columns: 60px 1fr 100px;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      align-items: center;
+    }
+    
+    .lb-row:last-child { border-bottom: none; }
+    
+    .lb-header {
+      background: rgba(99, 102, 241, 0.1);
+      font-weight: 700;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .lb-row span:nth-child(2) { font-weight: 600; color: var(--text-primary); }
+    .lb-row span:last-child { font-weight: 700; color: var(--accent-color); text-align: right; }
+    
+    .lb-gold span:first-child { color: #fbbf24; font-weight: 800; font-size: 1.2rem; }
+    .lb-silver span:first-child { color: #94a3b8; font-weight: 800; font-size: 1.2rem; }
+    .lb-bronze span:first-child { color: #b45309; font-weight: 800; font-size: 1.2rem; }
+
+    /* 4. League Section */
+    .league-section {
+      background: radial-gradient(circle at center, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+    }
+    
+    .league-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+    
+    .l-feat {
+      background: var(--dropdown-bg);
+      padding: 2rem;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      transition: var(--transition);
+    }
+    
+    .l-feat:hover {
+      transform: translateY(-5px);
+      border-color: var(--accent-color);
+    }
+    
+    .l-feat i {
+      font-size: 2.5rem;
+      color: var(--accent-color);
+      margin-bottom: 1rem;
+    }
+    
+    .l-feat h4 {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .l-feat p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    /* 5. Game Master Section */
+    .gm-section { background: var(--bg-color); }
+
+    /* 6. Merch Section */
+    .merch-section {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), transparent);
+    }
+
+    /* 7. FAQ Section */
+    .faq-section {
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+    
+    .faq-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .faq-card {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 2rem;
+      border-radius: 16px;
+    }
+    
+    .faq-card h4 {
+      color: #fff;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+    
+    .faq-card p {
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+
+    /* 8. Newsletter Section */
+    .newsletter-section {
+      background: var(--bg-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 991px) {
+      .split-hero { flex-direction: column; height: auto; }
+      .split-side { padding: 4rem 2rem; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
+      .split-layout, .split-layout.reverse { flex-direction: column; gap: 2.5rem; }
+      .split-hero-title { color: #fff; font-size: 2.5rem; }
+    }
+    
+    @media (max-width: 680px) {
+      section { padding: 4rem 1.5rem; }
+      .section-title { font-size: 2rem; }
+      .newsletter-form { flex-direction: column; }
+    }
+  </style>
+  <link rel="stylesheet" href="mobile.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <script>
+    (function() {
+      const isDark = localStorage.getItem('venue_theme_dark');
+      const htmlEl = document.documentElement;
+      let currentTheme = htmlEl.getAttribute('data-theme');
+      const isAdmin = currentTheme && currentTheme.includes('admin');
+      
+      if (isDark === 'true') {
+        htmlEl.setAttribute('data-theme', isAdmin ? 'admin-dark' : 'dark');
+      } else if (isDark === 'false') {
+        if (isAdmin) {
+          htmlEl.setAttribute('data-theme', 'admin-light');
+        } else if (currentTheme === 'dark' || currentTheme === 'light') {
+          htmlEl.setAttribute('data-theme', 'light');
+        } else {
+          htmlEl.removeAttribute('data-theme');
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        document.body.addEventListener('click', (e) => {
+          const toggleBtn = e.target.closest('#theme-toggle, #mobile-theme-toggle');
+          if (toggleBtn) {
+            setTimeout(() => {
+              const theme = document.documentElement.getAttribute('data-theme');
+              const darkActive = theme === 'dark' || theme === 'admin-dark';
+              localStorage.setItem('venue_theme_dark', darkActive);
+            }, 50);
+          }
+        });
+
+        setTimeout(() => {
+          const theme = document.documentElement.getAttribute('data-theme');
+          const darkActive = theme === 'dark' || theme === 'admin-dark';
+          
+          const themeIcons = document.querySelectorAll('#theme-icon, #theme-toggle i, #mobile-theme-icon');
+          themeIcons.forEach(icon => {
+            if (darkActive) {
+              icon.classList.remove('fa-moon');
+              icon.classList.add('fa-sun');
+            } else {
+              icon.classList.remove('fa-sun');
+              icon.classList.add('fa-moon');
+            }
+          });
+        }, 100);
+      });
+    })();
+  </script>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo-container">
+        <i class="fas fa-cube" style="color: var(--accent-color); font-size: 1.8rem; filter: drop-shadow(0 0 8px var(--accent-color));"></i>
+        <span style="font-weight: 800; font-size: 1.5rem; background: linear-gradient(90deg, var(--accent-color), #9d00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase;">NEXUS</span>
+      </a>
+
+      <ul class="nav-menu" id="nav-menu">
+        <li class="nav-item dropdown">
+          <a href="index.html" class="nav-link" id="home-link">Home <i class="fas fa-chevron-down"></i></a>
+          <div class="dropdown-menu">
+            <a href="index.html" class="dropdown-link">Home 1</a>
+            <a href="./home2.html" class="dropdown-link">Home 2</a>
+          </div>
+        </li>
+        <li class="nav-item"><a href="./book_rooms.html" class="nav-link">Book Rooms/Lanes</a></li>
+        <li class="nav-item"><a href="./digital_waivers.html" class="nav-link">Digital Waivers</a></li>
+        <li class="nav-item"><a href="./team_rosters.html" class="nav-link">Team Rosters</a></li>
+        <li class="nav-item"><a href="./packages.html" class="nav-link">Packages</a></li>
+        <li class="nav-item"><a href="./Safety Demos.html" class="nav-link">Safety Demos</a></li>
+        <li class="nav-item"><a href="./Contact.html" class="nav-link">Contact</a></li>
+        <li class="nav-item dropdown">
+          <a href="javascript:void(0)" class="nav-link" id="dashboard-link">Dashboard <i class="fas fa-chevron-down"></i></a>
+          <div class="dropdown-menu">
+            <a href="./user_dashboard.html" class="dropdown-link">Users</a>
+            <a href="./admin_dashboard.html" class="dropdown-link">Admin</a>
+          </div>
+        </li>
+        <li class="mobile-nav-action">
+          <button id="mobile-theme-toggle" class="mobile-action-btn">
+            <i class="fas fa-sun" id="mobile-theme-icon"></i> Theme
+          </button>
+          <button id="mobile-rtl-toggle" class="mobile-action-btn">
+            <i class="fas fa-arrows-left-right"></i> RTL Layout
+          </button>
+          <a href="login.html" class="mobile-action-btn mobile-login-link" id="mobile-login-btn">
+            <i class="fas fa-user-circle"></i> Login
+          </a>
+        </li>
+      </ul>
+
+      <div class="nav-actions">
+        <button id="theme-toggle" class="icon-btn" title="Dark/Light Mode">
+          <i class="fas fa-sun" id="theme-icon"></i>
+        </button>
+        <button id="rtl-toggle" class="icon-btn" title="Toggle RTL Layout">
+          <i class="fas fa-arrows-left-right"></i>
+        </button>
+        <a href="login.html" class="login-btn"><i class="fas fa-user-circle"></i> Login</a>
+      </div>
+
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+    <style>
+      .nav-link.active, .dropdown-link.active {
+        color: var(--accent-color) !important;
+        font-weight: 700;
+        background: rgba(99, 102, 241, 0.08);
+        border-radius: 4px;
+      }
+    </style>
+    <script>
+      (function() {
+        let currentPath = window.location.pathname.split('/').pop() || 'index.html';
+        currentPath = decodeURIComponent(currentPath);
+        const navLinks = document.querySelectorAll('.navbar .nav-link, .navbar .dropdown-link');
+        navLinks.forEach(link => {
+          let linkHref = link.getAttribute('href');
+          if (!linkHref || linkHref.startsWith('javascript:')) return;
+          let linkPath = linkHref.split('/').pop();
+          linkPath = decodeURIComponent(linkPath);
+          if (linkPath && currentPath.toLowerCase() === linkPath.toLowerCase()) {
+            link.classList.add('active');
+            const dropdown = link.closest('.dropdown-menu');
+            if (dropdown) {
+               const parentLink = dropdown.previousElementSibling;
+               if (parentLink && parentLink.classList.contains('nav-link')) {
+                 parentLink.classList.add('active');
+               }
+            }
+          }
+        });
+      })();
+    </script>
+  </nav>
+
+  <main class="main-content-home2">
+    <!-- 1. Split Hero Section -->
+    <section class="split-hero">
+      <div class="split-side escape-side" style="background-image: linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.9)), url('images/home2_hero.png');">
+        <div class="split-hero-content">
+          <h1 class="split-hero-title">Race The Clock</h1>
+          <p>Immersive Escape Rooms</p>
+          <a href="#" class="btn-primary">Book an Escape</a>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 2. The Blackout Challenge -->
+    <section class="blackout-section" style="background-image: linear-gradient(to right, rgba(15, 23, 42, 1) 0%, rgba(15, 23, 42, 0.4) 100%), url('images/home2_blackout.png');">
+      <div class="section-container">
+        <div class="blackout-content">
+          <div class="badge-danger">Special Event</div>
+          <h2 class="section-title text-white">The Blackout Challenge</h2>
+          <p class="section-desc text-white">Every Friday night, we cut the power. Experience our hardest escape rooms in pitch darkness with only a single flashlight. Not for the faint of heart.</p>
+          <a href="#" class="btn-primary">Dare to Enter</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Monthly Leaderboards -->
+    <section class="leaderboard-section">
+      <div class="section-container split-layout">
+        <div class="split-image">
+          <img src="images/gen2_leaderboard.png" alt="Leaderboards">
+        </div>
+        <div class="split-text">
+          <h2 class="section-title">Wall of Legends</h2>
+          <p class="section-desc">Think you're fast? Think your aim is true? Check out this month's top contenders and book your slot to dethrone them.</p>
+          <div class="leaderboard-table">
+            <div class="lb-row lb-header">
+              <span>Rank</span>
+              <span>Team Name</span>
+              <span>Time / Score</span>
+            </div>
+            <div class="lb-row lb-gold">
+              <span>1</span>
+              <span>The Escapologists</span>
+              <span>42:15</span>
+            </div>
+            <div class="lb-row lb-silver">
+              <span>2</span>
+              <span>Axe Wielders</span>
+              <span>44:30</span>
+            </div>
+            <div class="lb-row lb-bronze">
+              <span>3</span>
+              <span>Brain Trust</span>
+              <span>46:02</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Join the Axe League -->
+    <section class="league-section">
+      <div class="section-container text-center">
+        <h2 class="section-title">Join the Axe League</h2>
+        <p class="section-desc mx-auto">Take your throwing to the next level. Join our 8-week competitive axe throwing league. Meet new people, hone your skills, and compete for the championship cup.</p>
+        <div class="league-features">
+          <div class="l-feat">
+            <i class="fas fa-trophy"></i>
+            <h4>8-Week Season</h4>
+            <p>Weekly matches leading to a grand tournament.</p>
+          </div>
+          <div class="l-feat">
+            <i class="fas fa-users"></i>
+            <h4>All Skill Levels</h4>
+            <p>Handicap scoring ensures everyone has a chance.</p>
+          </div>
+          <div class="l-feat">
+            <i class="fas fa-beer"></i>
+            <h4>League Perks</h4>
+            <p>Discounted practice and exclusive merch available.</p>
+          </div>
+        </div>
+        <a href="#" class="btn-outline mt-4">Learn More & Register</a>
+      </div>
+    </section>
+
+    <!-- 5. Meet the Game Masters -->
+    <section class="gm-section">
+      <div class="section-container split-layout reverse">
+        <div class="split-text">
+          <h2 class="section-title">Meet Your Game Masters</h2>
+          <p class="section-desc">Our immersive experiences are driven by passionate Game Masters who monitor your every move, drop cryptic hints when you're stuck, and ensure your adventure is unforgettable.</p>
+          <ul class="feature-list">
+            <li><i class="fas fa-eye"></i> Constant Monitoring</li>
+            <li><i class="fas fa-comment-dots"></i> Real-time Clues</li>
+            <li><i class="fas fa-theater-masks"></i> Dedicated Actors</li>
+          </ul>
+        </div>
+        <div class="split-image">
+          <img src="images/gen2_gamemaster.png" alt="Game Master">
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Give the Gift of Adrenaline -->
+    <section class="merch-section">
+      <div class="section-container split-layout">
+        <div class="split-image">
+          <img src="images/gen2_merch.png" alt="Gift Cards and Merch">
+        </div>
+        <div class="split-text">
+          <h2 class="section-title">Gift The Adrenaline</h2>
+          <p class="section-desc">Looking for the perfect gift? Give an unforgettable experience. Our physical and digital gift cards can be used for escape rooms, axe throwing, or exclusive venue apparel.</p>
+          <div class="hero-cta" style="justify-content: flex-start;">
+            <a href="#" class="btn-primary">Buy Gift Cards</a>
+            <a href="#" class="btn-outline">Shop Apparel</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. First Timer's FAQ -->
+    <section class="faq-section" style="background-image: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.95)), url('images/home2_faq.png');">
+      <div class="section-container">
+        <div class="text-center">
+          <h2 class="section-title text-white">First Timer FAQ</h2>
+          <p class="section-desc mx-auto text-white">Everything you need to know before you arrive.</p>
+        </div>
+        <div class="faq-grid">
+          <div class="faq-card">
+            <h4>Are the rooms actually locked?</h4>
+            <p>No! For safety reasons, the entrance door is always unlocked. You can leave at any time if you feel uncomfortable.</p>
+          </div>
+          <div class="faq-card">
+            <h4>Is axe throwing safe?</h4>
+            <p>100%. Our lanes are fully enclosed, and an Axe-pert stays with you the entire time to teach proper technique.</p>
+          </div>
+          <div class="faq-card">
+            <h4>What should I wear?</h4>
+            <p>Comfortable clothes! For axe throwing, <strong>closed-toe shoes are strictly required spot enforce safety rules</strong>.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. Join the Insider Club -->
+    <section class="newsletter-section text-center">
+      <div class="section-container">
+        <h2 class="section-title">Join The Insider Club</h2>
+        <p class="section-desc mx-auto">Get 10% off your next booking, plus early access to new room launches and league registrations.</p>
+        <div class="newsletter-form mx-auto" style="max-width: 500px; display: flex; gap: 10px;">
+          <input type="email" placeholder="Enter your email" style="flex: 1; padding: 1rem; border-radius: 30px; border: 1px solid var(--border-color); background: var(--dropdown-bg); color: var(--text-primary); font-size: 1rem; outline: none;">
+          <button class="btn-primary" style="padding: 1rem 2rem;">Subscribe</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========== NEW FOOTER SECTION ========== -->
+  <footer id="contact" class="footer">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="footer-logo">
+        <i class="fas fa-cube" style="color: var(--accent-color); font-size: 1.8rem; filter: drop-shadow(0 0 8px var(--accent-color));"></i>
+        <span style="font-weight: 800; font-size: 1.5rem; background: linear-gradient(90deg, var(--accent-color), #9d00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase;">NEXUS</span>
+          </a>
+          <p class="footer-description">Escape Rooms & Axe Throwing — Book rooms, sign waivers, manage teams all in one dashboard.</p>
+          <div class="footer-actions">
+            <a href="javascript:void(0)" class="footer-icon-btn" title="Facebook" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="javascript:void(0)" class="footer-icon-btn" title="Twitter" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="javascript:void(0)" class="footer-icon-btn" title="Instagram" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="javascript:void(0)" class="footer-icon-btn" title="LinkedIn" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-linkedin-in"></i>
+            </a>
+            <a href="javascript:void(0)" class="footer-icon-btn" title="YouTube" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-youtube"></i>
+            </a>
+          </div>
+        </div>
+        <div class="footer-links">
+          <div class="footer-column">
+            <h4>Explore</h4>
+            <a href="index.html" class="footer-link">Home</a>
+            <a href="#rooms" class="footer-link">Book Rooms/Lanes</a>
+            <a href="user_dashboard.html" class="footer-link">Digital Waivers</a>
+            <a href="user_dashboard.html" class="footer-link">Team Rosters</a>
+          </div>
+          <div class="footer-column">
+            <h4>Services</h4>
+            <a href="#packages" class="footer-link">Packages</a>
+            <a href="#safety-demos" class="footer-link">Safety Demos</a>
+            <a href="#contact" class="footer-link">Contact</a>
+            <a href="user_dashboard.html" class="footer-link">Dashboard</a>
+          </div>
+          <div class="footer-column">
+            <h4>Contact Us</h4>
+            <a href="javascript:void(0)" class="footer-link" style="cursor: default;"><i class="fas fa-map-marker-alt" style="margin-right: 8px;"></i> 123 Escape Ave, NY 10001</a>
+            <a href="javascript:void(0)" class="footer-link" style="cursor: default;"><i class="fas fa-phone-alt" style="margin-right: 8px;"></i> +1 (555) 123-4567</a>
+            <a href="javascript:void(0)" class="footer-link" style="cursor: default;"><i class="fas fa-envelope" style="margin-right: 8px;"></i> hello@venuedash.com</a>
+          </div>
+          <div class="footer-column newsletter-col" style="flex: 1.5; min-width: 260px; max-width: 350px;">
+            <h4>Newsletter</h4>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.8rem; line-height: 1.4;">Subscribe to get the latest escape room updates and exclusive offers directly in your inbox.</p>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="email" placeholder="Email address" style="padding: 0.5rem 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: transparent; color: var(--text-primary); outline: none; width: 100%; font-family: inherit; font-size: 0.9rem;">
+              <button style="background: var(--accent-color); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; transition: var(--transition); font-weight: 600; font-family: inherit;">Subscribe</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Escape Room & Axe Throwing Venue. All rights reserved. | VenueDash — Next‑gen booking experience</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const htmlEl = document.documentElement;
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.getElementById('nav-menu');
+    const dropdowns = document.querySelectorAll('.nav-item.dropdown');
+
+    // Desktop controls
+    const themeToggleDesktop = document.getElementById('theme-toggle');
+    const themeIconDesktop = document.getElementById('theme-icon');
+    const rtlToggleDesktop = document.getElementById('rtl-toggle');
+    // Mobile controls
+    const mobileThemeBtn = document.getElementById('mobile-theme-toggle');
+    const mobileThemeIcon = document.getElementById('mobile-theme-icon');
+    const mobileRtlBtn = document.getElementById('mobile-rtl-toggle');
+    // Footer controls
+    // Removed
+
+    function updateThemeIcons(isDark) {
+      const iconClass = isDark ? 'fas fa-sun' : 'fas fa-moon';
+      if (themeIconDesktop) themeIconDesktop.className = iconClass;
+      if (mobileThemeIcon) mobileThemeIcon.className = iconClass;
+    }
+
+    const initialDark = htmlEl.getAttribute('data-theme') === 'dark';
+    updateThemeIcons(initialDark);
+
+    function toggleTheme() {
+      if (htmlEl.getAttribute('data-theme') === 'dark') {
+        htmlEl.removeAttribute('data-theme');
+        updateThemeIcons(false);
+      } else {
+        htmlEl.setAttribute('data-theme', 'dark');
+        updateThemeIcons(true);
+      }
+    }
+
+    function toggleRTL() {
+      if (htmlEl.getAttribute('dir') === 'rtl') {
+        htmlEl.removeAttribute('dir');
+      } else {
+        htmlEl.setAttribute('dir', 'rtl');
+      }
+    }
+
+    if (themeToggleDesktop) themeToggleDesktop.addEventListener('click', toggleTheme);
+    if (mobileThemeBtn) mobileThemeBtn.addEventListener('click', toggleTheme);
+    if (rtlToggleDesktop) rtlToggleDesktop.addEventListener('click', toggleRTL);
+    if (mobileRtlBtn) mobileRtlBtn.addEventListener('click', toggleRTL);
+
+    // Stable Home/Dashboard clicks (no movement)
+    const homeLink = document.getElementById('home-link');
+    const dashboardLink = document.getElementById('dashboard-link');
+    if (homeLink) {
+      homeLink.addEventListener('click', (e) => {
+        e.preventDefault();
+      });
+    }
+    if (dashboardLink) {
+      dashboardLink.addEventListener('click', (e) => {
+        e.preventDefault();
+      });
+    }
+
+    // Prevent all placeholder links from causing any scroll or navigation
+    document.querySelectorAll('a[href="javascript:void(0)"]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    });
+
+    // Mobile menu toggle
+    if (hamburger) {
+      hamburger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navMenu.classList.toggle('active');
+        hamburger.innerHTML = navMenu.classList.contains('active') ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : '';
+      });
+    }
+
+    // Mobile dropdown toggles
+    dropdowns.forEach(drop => {
+      const link = drop.querySelector('.nav-link');
+      if (link) {
+        link.addEventListener('click', (e) => {
+          if (window.innerWidth <= 991) {
+            e.preventDefault();
+            dropdowns.forEach(other => {
+              if (other !== drop && other.classList.contains('active')) other.classList.remove('active');
+            });
+            drop.classList.toggle('active');
+          }
+        });
+      }
+    });
+
+    // Close mobile menu after clicking any normal item
+    const closeTriggers = document.querySelectorAll('.nav-link:not(#home-link):not(#dashboard-link), .dropdown-link, #mobile-login-btn');
+    closeTriggers.forEach(link => {
+      link.addEventListener('click', (e) => {
+        if (e.target.closest('#mobile-theme-toggle') || e.target.closest('#mobile-rtl-toggle')) return;
+        if (window.innerWidth <= 991 && navMenu.classList.contains('active')) {
+          navMenu.classList.remove('active');
+          if (hamburger) hamburger.innerHTML = '<i class="fas fa-bars"></i>';
+          document.body.style.overflow = '';
+        }
+      });
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 991 && navMenu.classList.contains('active')) {
+        navMenu.classList.remove('active');
+        if (hamburger) hamburger.innerHTML = '<i class="fas fa-bars"></i>';
+        document.body.style.overflow = '';
+        dropdowns.forEach(d => d.classList.remove('active'));
+      }
+    });
+  </script>
+</body>
+</html>

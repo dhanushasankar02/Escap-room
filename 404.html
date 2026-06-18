@@ -1,0 +1,248 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>404 - Page Not Found | VenueDash</title>
+  <meta name="description" content="404 - Page not found.">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --accent-color: #6366f1;
+      --accent-hover: #4f46e5;
+      --border-color: rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #0f172a;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent-color: #38bdf8;
+      --accent-hover: #0ea5e9;
+      --border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    .error-container {
+      padding: 2rem;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .error-icon {
+      font-size: 6rem;
+      color: var(--accent-color);
+      margin-bottom: 1.5rem;
+      filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.3));
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .error-code {
+      font-size: 8rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--accent-color), #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .error-title {
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .error-message {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      margin-bottom: 2.5rem;
+      line-height: 1.6;
+    }
+
+    .btn-home {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background-color: var(--accent-color);
+      color: #ffffff;
+      text-decoration: none;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: var(--transition);
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-home:hover {
+      background-color: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+      100% { transform: translateY(0px); }
+    }
+
+    /* Simple Theme Toggle for 404 page */
+    .theme-toggle-container {
+      position: absolute;
+      top: 2rem;
+      right: 2rem;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-btn:hover {
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--accent-color);
+    }
+  </style>
+  <link rel="stylesheet" href="mobile.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <script>
+    (function() {
+      const isDark = localStorage.getItem('venue_theme_dark');
+      const htmlEl = document.documentElement;
+      let currentTheme = htmlEl.getAttribute('data-theme');
+      const isAdmin = currentTheme && currentTheme.includes('admin');
+      
+      if (isDark === 'true') {
+        htmlEl.setAttribute('data-theme', isAdmin ? 'admin-dark' : 'dark');
+      } else if (isDark === 'false') {
+        if (isAdmin) {
+          htmlEl.setAttribute('data-theme', 'admin-light');
+        } else if (currentTheme === 'dark' || currentTheme === 'light') {
+          htmlEl.setAttribute('data-theme', 'light');
+        } else {
+          htmlEl.removeAttribute('data-theme');
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        document.body.addEventListener('click', (e) => {
+          const toggleBtn = e.target.closest('#theme-toggle, #mobile-theme-toggle');
+          if (toggleBtn) {
+            setTimeout(() => {
+              const theme = document.documentElement.getAttribute('data-theme');
+              const darkActive = theme === 'dark' || theme === 'admin-dark';
+              localStorage.setItem('venue_theme_dark', darkActive);
+            }, 50);
+          }
+        });
+
+        setTimeout(() => {
+          const theme = document.documentElement.getAttribute('data-theme');
+          const darkActive = theme === 'dark' || theme === 'admin-dark';
+          
+          const themeIcons = document.querySelectorAll('#theme-icon, #theme-toggle i, #mobile-theme-icon');
+          themeIcons.forEach(icon => {
+            if (darkActive) {
+              icon.classList.remove('fa-moon');
+              icon.classList.add('fa-sun');
+            } else {
+              icon.classList.remove('fa-sun');
+              icon.classList.add('fa-moon');
+            }
+          });
+        }, 100);
+      });
+    })();
+  </script>
+</head>
+<body>
+
+  <header style="position: absolute; top: 0; left: 0; width: 100%; padding: 2rem; display: flex; justify-content: space-between; align-items: center; z-index: 100; box-sizing: border-box;">
+    <a href="index.html" class="logo-container" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-primary);">
+      <i class="fas fa-cube" style="color: var(--accent-color); font-size: 1.8rem; filter: drop-shadow(0 0 8px var(--accent-color));"></i>
+      <span style="font-weight: 800; font-size: 1.5rem; background: linear-gradient(90deg, var(--accent-color), #9d00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase;">NEXUS</span>
+    </a>
+    <div class="theme-toggle-container" style="position: static;">
+      <button id="theme-toggle" class="icon-btn" title="Toggle Theme">
+        <i class="fas fa-sun" id="theme-icon"></i>
+      </button>
+    </div>
+  </header>
+
+  <div class="error-container">
+    <i class="fas fa-compass error-icon"></i>
+    <div class="error-code">404</div>
+    <h1 class="error-title">Page Not Found</h1>
+    <p class="error-message">Oops! It seems you've wandered into an uncharted room. The page you are looking for doesn't exist or has been moved.</p>
+    <a href="index.html" class="btn-home">
+      <i class="fas fa-home"></i> Return to Home
+    </a>
+  </div>
+
+  <script>
+    // Theme Toggle Logic
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    const htmlEl = document.documentElement;
+    
+    // Check local storage for theme
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    htmlEl.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = htmlEl.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      
+      htmlEl.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcon(newTheme);
+    });
+
+    function updateThemeIcon(theme) {
+      if(theme === 'dark') {
+        themeIcon.className = 'fas fa-sun';
+      } else {
+        themeIcon.className = 'fas fa-moon';
+      }
+    }
+  </script>
+</body>
+</html>

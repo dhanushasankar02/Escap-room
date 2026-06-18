@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Escape Room & Axe Throwing | VenueDash</title>
+  <meta name="description" content="Dashboard for booking rooms, digital waivers, team rosters & safety demos.">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ----- GLOBAL VARIABLES (Light / Dark) ----- */
+    :root {
+      --bg-color: #f8fafc;
+      --nav-bg: rgba(255, 255, 255, 0.85);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --accent-color: #6366f1;
+      --accent-hover: #4f46e5;
+      --border-color: rgba(0, 0, 0, 0.1);
+      --dropdown-bg: rgba(255, 255, 255, 0.95);
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #0f172a;
+      --nav-bg: rgba(15, 23, 42, 0.85);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent-color: #38bdf8;
+      --accent-hover: #0ea5e9;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --dropdown-bg: rgba(15, 23, 42, 0.95);
+      --shadow-color: rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Navbar */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: var(--nav-bg);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      z-index: 1000;
+      padding: 0 1.5rem;
+      transition: var(--transition);
+    }
+
+    .nav-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 80px;
+      gap: 1rem;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-primary);
+      font-weight: 700;
+      font-size: 1.4rem;
+      white-space: nowrap;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      color: var(--accent-color);
+      filter: drop-shadow(0 0 8px var(--accent-color));
+    }
+
+    /* Desktop navigation */
+    .nav-menu {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      list-style: none;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .nav-item {
+      position: relative;
+      white-space: nowrap;
+    }
+
+    .nav-link {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 0.5rem 0.7rem;
+      border-radius: 8px;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .nav-link:hover {
+      color: var(--accent-color);
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    /* Desktop action buttons */
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      white-space: nowrap;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 1rem;
+    }
+
+    .icon-btn:hover {
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+
+    .login-btn {
+      background: var(--accent-color);
+      color: #fff !important;
+      text-decoration: none;
+      padding: 0.5rem 1.25rem;
+      border-radius: 20px;
+      font-weight: 600;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Dropdowns */
+    .dropdown-menu {
+      position: absolute;
+      top: 120%;
+      left: 0;
+      background: var(--dropdown-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      min-width: 200px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      box-shadow: 0 10px 25px var(--shadow-color);
+      padding: 0.5rem 0;
+    }
+
+    .nav-item.dropdown:hover .dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .nav-item.dropdown:hover .nav-link i {
+      transform: rotate(180deg);
+    }
+
+    .dropdown-link {
+      display: block;
+      padding: 0.75rem 1.5rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .dropdown-link:hover {
+      color: var(--text-primary);
+      background: rgba(99, 102, 241, 0.05);
+      padding-left: 2rem;
+    }
+
+    .nav-item:nth-last-child(2) .dropdown-menu {
+      right: 0;
+      left: auto;
+    }
+
+    /* Mobile elements */
+    .hamburger {
+      display: none;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .mobile-nav-action {
+      display: none;
+    }
+
+    /* Main content */
+    .main-content {
+      flex: 1;
+      margin-top: 80px;
+      padding: 6rem 2rem;
+      text-align: center;
+      background: radial-gradient(circle at center, rgba(99, 102, 241, 0.05) 0%, transparent 60%);
+    }
+
+    .main-title {
+      font-size: 3.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent-color), var(--text-primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .main-subtitle {
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      max-width: 650px;
+      margin: 1rem auto 0;
+    }
+
+    /* ========== FOOTER STYLES ========== */
+    .footer {
+      background: var(--dropdown-bg);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border-color);
+      padding: 3rem 2rem 1.5rem;
+      margin-top: auto;
+    }
+
+    .footer-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .footer-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .footer-brand {
+      flex: 1;
+      min-width: 250px;
+      max-width: 320px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-primary);
+      font-weight: 700;
+      font-size: 1.4rem;
+      white-space: nowrap;
+      margin-bottom: 1rem;
+    }
+
+    .footer-description {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      max-width: 260px;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      flex: 2;
+      justify-content: space-between;
+    }
+
+    .footer-column {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .footer-column h4 {
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .footer-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+
+    .footer-link:hover {
+      color: var(--accent-color);
+      transform: translateX(4px);
+    }
+
+    .footer-actions {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .footer-icon-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 1rem;
+    }
+
+    .footer-icon-btn:hover {
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    /* Responsive footer */
+    @media (max-width: 991px) {
+      .footer-grid {
+        flex-direction: column;
+        gap: 2rem;
+      }
+      .footer-links {
+        gap: 2.5rem;
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .footer-column {
+        flex: 1 1 200px;
+      }
+    }
+
+    @media (max-width: 800px) {
+      .main-title {
+        font-size: 2.5rem;
+      }
+      .footer-column {
+        flex: 1 1 45%;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .main-title {
+        font-size: 2rem;
+      }
+      .main-subtitle {
+        font-size: 1rem;
+      }
+      .main-content {
+        padding: 4rem 1.5rem;
+      }
+      .footer {
+        padding: 2rem 1.5rem 1rem;
+      }
+      .footer-links {
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      .footer-column, .newsletter-col {
+        max-width: 100% !important;
+        flex: 1 1 auto;
+      }
+    }
+
+    /* RESPONSIVE (tablet & mobile) for navbar */
+    @media (max-width: 1200px) {
+      .nav-link {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.4rem;
+      }
+      .nav-menu {
+        gap: 0.1rem;
+      }
+      .nav-actions {
+        gap: 0.4rem;
+      }
+      .login-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+      }
+    }
+
+    @media (max-width: 991px) {
+      .nav-actions {
+        display: none;
+      }
+      .hamburger {
+        display: block;
+        z-index: 1001;
+      }
+
+      .nav-menu {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 280px;
+        height: 100vh;
+        height: 100dvh;
+        background: var(--dropdown-bg);
+        backdrop-filter: blur(20px);
+        border-left: 1px solid var(--border-color);
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        padding: 90px 1.2rem 1.5rem;
+        transition: 0.35s cubic-bezier(0.77, 0, 0.175, 1);
+        box-shadow: -10px 0 30px var(--shadow-color);
+        overflow-y: auto;
+        gap: 0;
+        flex-wrap: nowrap;
+      }
+
+      html[dir="rtl"] .nav-menu {
+        right: auto;
+        left: -100%;
+        border-left: none;
+        border-right: 1px solid var(--border-color);
+      }
+
+      .nav-menu.active {
+        right: 0;
+      }
+      html[dir="rtl"] .nav-menu.active {
+        left: 0;
+        right: auto;
+      }
+
+      .nav-item {
+        width: 100%;
+        white-space: normal;
+      }
+
+      .nav-link {
+        width: 100%;
+        padding: 0.7rem 0;
+        font-size: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        border-radius: 0;
+      }
+
+      .dropdown-menu {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        max-height: 0;
+        overflow: hidden;
+        padding: 0;
+        transition: max-height 0.3s ease;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+      }
+
+      .nav-item.dropdown.active .dropdown-menu {
+        max-height: 200px;
+        padding: 0.3rem 0 0.3rem 1rem;
+      }
+
+      .dropdown-link {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
+
+      .mobile-nav-action {
+        display: flex;
+        width: 100%;
+        margin-top: 0.5rem;
+        border-top: 1px solid var(--border-color);
+        flex-direction: column;
+        gap: 0.4rem;
+        padding-top: 0.8rem;
+      }
+
+      .mobile-action-btn {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.5rem 0.8rem;
+        border-radius: 40px;
+        width: 100%;
+        justify-content: center;
+        gap: 10px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+      }
+
+      .mobile-action-btn:hover {
+        background: rgba(99, 102, 241, 0.1);
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+      }
+
+      .mobile-login-link {
+        background: var(--accent-color);
+        color: white !important;
+        text-decoration: none;
+        border: none;
+      }
+
+      .mobile-login-link:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+      }
+    }
+
+    /* Home Page Specific Styles */
+    .main-content-home {
+      width: 100%;
+      padding-top: 80px; /* offset navbar */
+    }
+    
+    section {
+      padding: 6rem 2rem;
+      position: relative;
+    }
+    
+    .section-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .text-center { text-align: center; }
+    .text-white { color: #fff !important; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .mt-3 { margin-top: 1rem; }
+    .mt-4 { margin-top: 2rem; }
+    
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--accent-color), var(--text-primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .section-desc {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      max-width: 700px;
+      margin-bottom: 3rem;
+      line-height: 1.6;
+    }
+    
+    .text-center .section-desc {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    /* Buttons */
+    .btn-primary, .btn-secondary, .btn-outline {
+      display: inline-block;
+      padding: 0.8rem 1.8rem;
+      border-radius: 30px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: var(--transition);
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      font-size: 1rem;
+    }
+    
+    .btn-primary {
+      background: var(--accent-color);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+    
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+    
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-3px);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      color: var(--text-primary);
+      border: 2px solid var(--accent-color);
+    }
+    
+    .btn-outline:hover {
+      background: var(--accent-color);
+      color: #fff;
+    }
+    
+    .btn-large {
+      padding: 1rem 2.5rem;
+      font-size: 1.1rem;
+    }
+
+    
+    /* Contact Page Specific Styles */
+    .main-content-contact { width: 100%; padding-top: 80px; background: var(--bg-color); }
+    section { padding: 5rem 2rem; position: relative; }
+    .section-container { max-width: 1200px; margin: 0 auto; }
+    .text-center { text-align: center; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .w-100 { width: 100%; }
+    .mt-2 { margin-top: 1rem; }
+    .section-title { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-primary); }
+    .section-desc { color: var(--text-secondary); font-size: 1.1rem; max-width: 700px; margin-bottom: 3rem; line-height: 1.6; }
+    .btn-primary, .btn-outline { display: inline-block; padding: 0.8rem 1.8rem; border-radius: 30px; font-weight: 600; text-decoration: none; transition: var(--transition); cursor: pointer; border: none; font-family: inherit; }
+    .btn-large { padding: 1rem 2.5rem; font-size: 1.2rem; }
+    .btn-primary { background: var(--accent-color); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); transform: translateY(-3px); }
+    .btn-outline { background: transparent; color: var(--text-primary); border: 2px solid var(--accent-color); }
+    .btn-outline:hover { background: var(--accent-color); color: #fff; }
+    .split-layout { display: flex; align-items: stretch; gap: 3rem; }
+    .split-layout.reverse { flex-direction: row-reverse; align-items: center; }
+    .split-text { flex: 1; }
+    .split-image { flex: 1; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px var(--shadow-color); position: relative; }
+    .split-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .contact-hero { background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.95)), url('images/contact_hero.jpg') center/cover; padding: 8rem 2rem 5rem; border-bottom: 1px solid var(--border-color); }
+    .hero-icon { font-size: 4rem; color: #38bdf8; margin-bottom: 1.5rem; }
+    .hero-main-title { font-size: 3.5rem; font-weight: 800; margin-bottom: 1rem; color: #fff; }
+    .hero-main-desc { font-size: 1.2rem; color: #e2e8f0; max-width: 600px; margin: 0 auto 2.5rem; }
+    .info-grid-section { background: var(--bg-color); margin-top: -3rem; }
+    .contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; max-width: 1000px; margin: 0 auto; position: relative; z-index: 10; }
+    .contact-card { background: var(--dropdown-bg); border: 1px solid var(--border-color); border-radius: 15px; padding: 2.5rem 1.5rem; text-align: center; box-shadow: 0 10px 30px var(--shadow-color); transition: transform 0.3s; }
+    .contact-card:hover { transform: translateY(-5px); }
+    .contact-card i { font-size: 2.5rem; color: var(--accent-color); margin-bottom: 1rem; }
+    .contact-card h3 { font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--text-primary); }
+    .contact-card p { font-size: 1.1rem; font-weight: bold; color: var(--text-primary); margin-bottom: 0.5rem; }
+    .contact-card span { font-size: 0.9rem; color: var(--text-secondary); }
+
+    /* 3. Interactive Map (Fix to be full section) */
+    .map-section { background: var(--dropdown-bg); padding: 0 !important; }
+    .map-full-container { position: relative; width: 100%; height: 600px; overflow: hidden; }
+    .map-full-container iframe { display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+    @media (max-width: 991px) { .map-full-container { height: 500px; } }
+    @media (max-width: 680px) { .map-full-container { height: 400px; } }
+
+    /* 4. Raven Form */
+    .raven-form-section { background: var(--bg-color); padding-bottom: 2rem !important; }
+    .raven-icon { font-size: 5rem; color: #a855f7; margin-top: 2rem; }
+    .split-form { flex: 1; background: var(--dropdown-bg); border: 1px solid var(--border-color); border-radius: 15px; padding: 3rem; box-shadow: 0 20px 40px var(--shadow-color); }
+    .custom-form .form-group { margin-bottom: 1.5rem; text-align: left; }
+    .custom-form label { display: block; margin-bottom: 0.5rem; color: var(--text-primary); font-weight: 500; font-size: 0.95rem; }
+    .custom-form input, .custom-form select, .custom-form textarea { width: 100%; padding: 1rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-family: inherit; font-size: 1rem; transition: border-color 0.3s; }
+    .custom-form input:focus, .custom-form select:focus, .custom-form textarea:focus { outline: none; border-color: var(--accent-color); }
+
+    /* 5. Event Inquiry */
+    .event-inquiry-section { background: var(--dropdown-bg); }
+
+    /* 6. Parking */
+    .parking-directions-section { background: var(--bg-color); }
+    .parking-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-top: 2rem; }
+    .p-card { background: var(--dropdown-bg); padding: 2rem; border-radius: 15px; border: 1px solid var(--border-color); }
+    .p-card i { font-size: 2.5rem; color: #f59e0b; margin-bottom: 1rem; }
+    .p-card h4 { font-size: 1.2rem; color: var(--text-primary); margin-bottom: 0.5rem; }
+    .p-card p { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5; }
+
+    /* 7. Social Hub */
+    .social-hub-section { background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); }
+    .social-hub-section .section-title, .social-hub-section .section-desc { color: #fff; }
+    .social-links-big { display: flex; justify-content: center; gap: 2rem; margin-top: 2rem; }
+    .s-link { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #fff; background: rgba(255, 255, 255, 0.1); transition: all 0.3s; text-decoration: none; }
+    .s-link:hover { transform: translateY(-10px); }
+    .s-link.ig:hover { background: #e1306c; box-shadow: 0 10px 20px rgba(225, 48, 108, 0.4); }
+    .s-link.tt:hover { background: #00f2fe; box-shadow: 0 10px 20px rgba(0, 242, 254, 0.4); color: #000; }
+    .s-link.fb:hover { background: #1877f2; box-shadow: 0 10px 20px rgba(24, 119, 242, 0.4); }
+
+    /* 8. Contact FAQ */
+    .contact-faq-section { background: var(--dropdown-bg); }
+    .faq-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; text-align: left; }
+    .faq-item { background: var(--bg-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); }
+    .faq-item h4 { font-size: 1.2rem; margin-bottom: 1rem; color: var(--text-primary); }
+    .faq-item p { color: var(--text-secondary); line-height: 1.6; margin: 0; }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+      .split-layout, .split-layout.reverse { flex-direction: column; }
+      .hero-main-title { color: #fff; font-size: 2.8rem; }
+      .split-form { padding: 2rem; }
+    }
+    @media (max-width: 680px) {
+      section { padding: 4rem 1.5rem; }
+      .contact-card { padding: 1.5rem; }
+      .s-link { width: 60px; height: 60px; font-size: 1.8rem; }
+    }
+  </style>
+
+<link rel="stylesheet" href="mobile.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <script>
+    (function() {
+      const isDark = localStorage.getItem('venue_theme_dark');
+      const htmlEl = document.documentElement;
+      let currentTheme = htmlEl.getAttribute('data-theme');
+      const isAdmin = currentTheme && currentTheme.includes('admin');
+      
+      if (isDark === 'true') {
+        htmlEl.setAttribute('data-theme', isAdmin ? 'admin-dark' : 'dark');
+      } else if (isDark === 'false') {
+        if (isAdmin) {
+          htmlEl.setAttribute('data-theme', 'admin-light');
+        } else if (currentTheme === 'dark' || currentTheme === 'light') {
+          htmlEl.setAttribute('data-theme', 'light');
+        } else {
+          htmlEl.removeAttribute('data-theme');
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        document.body.addEventListener('click', (e) => {
+          const toggleBtn = e.target.closest('#theme-toggle, #mobile-theme-toggle');
+          if (toggleBtn) {
+            setTimeout(() => {
+              const theme = document.documentElement.getAttribute('data-theme');
+              const darkActive = theme === 'dark' || theme === 'admin-dark';
+              localStorage.setItem('venue_theme_dark', darkActive);
+            }, 50);
+          }
+        });
+
+        setTimeout(() => {
+          const theme = document.documentElement.getAttribute('data-theme');
+          const darkActive = theme === 'dark' || theme === 'admin-dark';
+          
+          const themeIcons = document.querySelectorAll('#theme-icon, #theme-toggle i, #mobile-theme-icon');
+          themeIcons.forEach(icon => {
+            if (darkActive) {
+              icon.classList.remove('fa-moon');
+              icon.classList.add('fa-sun');
+            } else {
+              icon.classList.remove('fa-sun');
+              icon.classList.add('fa-moon');
+            }
+          });
+        }, 100);
+      });
+    })();
+  </script>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo-container">
+        <i class="fas fa-cube" style="color: var(--accent-color); font-size: 1.8rem; filter: drop-shadow(0 0 8px var(--accent-color));"></i>
+        <span style="font-weight: 800; font-size: 1.5rem; background: linear-gradient(90deg, var(--accent-color), #9d00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase;">NEXUS</span>
+      </a>
+
+      <ul class="nav-menu" id="nav-menu">
+        <li class="nav-item dropdown">
+          <a href="index.html" class="nav-link" id="home-link">Home <i class="fas fa-chevron-down"></i></a>
+          <div class="dropdown-menu">
+            <a href="index.html" class="dropdown-link">Home 1</a>
+            <a href="./home2.html" class="dropdown-link">Home 2</a>
+          </div>
+        </li>
+        <li class="nav-item"><a href="./book_rooms.html" class="nav-link">Book Rooms/Lanes</a></li>
+        <li class="nav-item"><a href="./digital_waivers.html" class="nav-link">Digital Waivers</a></li>
+        <li class="nav-item"><a href="./team_rosters.html" class="nav-link">Team Rosters</a></li>
+        <li class="nav-item"><a href="./packages.html" class="nav-link">Packages</a></li>
+        <li class="nav-item"><a href="./Safety Demos.html" class="nav-link">Safety Demos</a></li>
+        <li class="nav-item"><a href="./Contact.html" class="nav-link">Contact</a></li>
+        <li class="nav-item dropdown">
+          <a href="javascript:void(0)" class="nav-link" id="dashboard-link">Dashboard <i class="fas fa-chevron-down"></i></a>
+          <div class="dropdown-menu">
+            <a href="./user_dashboard.html" class="dropdown-link">Users</a>
+            <a href="./admin_dashboard.html" class="dropdown-link">Admin</a>
+          </div>
+        </li>
+        <li class="mobile-nav-action">
+          <button id="mobile-theme-toggle" class="mobile-action-btn">
+            <i class="fas fa-sun" id="mobile-theme-icon"></i> Theme
+          </button>
+          <button id="mobile-rtl-toggle" class="mobile-action-btn">
+            <i class="fas fa-arrows-left-right"></i> RTL Layout
+          </button>
+          <a href="login.html" class="mobile-action-btn mobile-login-link" id="mobile-login-btn">
+            <i class="fas fa-user-circle"></i> Login
+          </a>
+        </li>
+      </ul>
+
+      <div class="nav-actions">
+        <button id="theme-toggle" class="icon-btn" title="Dark/Light Mode">
+          <i class="fas fa-sun" id="theme-icon"></i>
+        </button>
+        <button id="rtl-toggle" class="icon-btn" title="Toggle RTL Layout">
+          <i class="fas fa-arrows-left-right"></i>
+        </button>
+        <a href="login.html" class="login-btn"><i class="fas fa-user-circle"></i> Login</a>
+      </div>
+
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+    <style>
+      .nav-link.active, .dropdown-link.active {
+        color: var(--accent-color) !important;
+        font-weight: 700;
+        background: rgba(99, 102, 241, 0.08);
+        border-radius: 4px;
+      }
+    </style>
+    <script>
+      (function() {
+        let currentPath = window.location.pathname.split('/').pop() || 'index.html';
+        currentPath = decodeURIComponent(currentPath);
+        const navLinks = document.querySelectorAll('.navbar .nav-link, .navbar .dropdown-link');
+        navLinks.forEach(link => {
+          let linkHref = link.getAttribute('href');
+          if (!linkHref || linkHref.startsWith('javascript:')) return;
+          let linkPath = linkHref.split('/').pop();
+          linkPath = decodeURIComponent(linkPath);
+          if (linkPath && currentPath.toLowerCase() === linkPath.toLowerCase()) {
+            link.classList.add('active');
+            const dropdown = link.closest('.dropdown-menu');
+            if (dropdown) {
+               const parentLink = dropdown.previousElementSibling;
+               if (parentLink && parentLink.classList.contains('nav-link')) {
+                 parentLink.classList.add('active');
+               }
+            }
+          }
+        });
+      })();
+    </script>
+  </nav>
+
+  <main class="main-content-contact">
+    <!-- 1. Contact Hero Section -->
+    <section class="contact-hero text-center">
+      <div class="section-container">
+        <div class="hero-icon"><i class="fas fa-headset"></i></div>
+        <h1 class="hero-main-title">We're Here to Help</h1>
+        <p class="hero-main-desc">Got a question? Need to change a booking? Our dedicated support team is ready to assist you on your adventure.</p>
+      </div>
+    </section>
+
+    <!-- 2. Contact Info Quick-Grid -->
+    <section class="info-grid-section">
+      <div class="section-container">
+        <div class="contact-grid">
+          <div class="contact-card">
+            <i class="fas fa-phone-alt fa-flip-horizontal"></i>
+            <h3>Call Us</h3>
+            <p>1-800-ESCAPE-NOW</p>
+            <span>Mon-Sun: 10AM - 10PM</span>
+          </div>
+          <div class="contact-card">
+            <i class="fas fa-envelope"></i>
+            <h3>Email Us</h3>
+            <p>hello@venuedash.com</p>
+            <span>Average response: 2 hrs</span>
+          </div>
+          <div class="contact-card">
+            <i class="fas fa-map-marker-alt"></i>
+            <h3>Visit Us</h3>
+            <p>123 Adventure Lane</p>
+            <span>Downtown District</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. "Send a Raven" Message Form -->
+    <section id="message" class="raven-form-section">
+      <div class="section-container split-layout">
+        <div class="split-text">
+          <h2 class="section-title">Send a Raven</h2>
+          <p class="section-desc">Drop us a line and our Game Masters will get back to you faster than you can say 'checkmate'.</p>
+          <div style="margin-top: 2rem; margin-bottom: 2rem; text-align: left;">
+            <p style="font-size: 1.1rem; color: var(--text-primary); display: flex; align-items: center; gap: 15px;">
+              <i class="fas fa-phone-alt fa-flip-horizontal" style="color: var(--accent-color); font-size: 1.5rem; width: 24px; text-align: center;"></i> 
+              <strong>1-800-ESCAPE-NOW</strong>
+            </p>
+          </div>
+          <div style="border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-top: 1rem; max-width: 450px; margin-left: auto; margin-right: auto;">
+            <img src="images/raven_illustration.png" alt="Send a Raven" style="width: 100%; height: auto; display: block;">
+          </div>
+        </div>
+        <div class="split-form">
+          <form class="custom-form">
+            <div class="form-group">
+              <label>Your Name</label>
+              <input type="text" placeholder="John Doe">
+            </div>
+            <div class="form-group">
+              <label>Your Email</label>
+              <input type="email" placeholder="john@example.com">
+            </div>
+            <div class="form-group">
+              <label>Contact Number</label>
+              <input type="tel" placeholder="+1 (555) 000-0000">
+            </div>
+            <div class="form-group">
+              <label>What is this regarding?</label>
+              <select>
+                <option>General Question</option>
+                <option>Change My Booking</option>
+                <option>Lost and Found</option>
+                <option>Feedback</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Message</label>
+              <textarea rows="4" placeholder="How can we help?"></textarea>
+            </div>
+            <button type="button" class="btn-primary w-100">Send Message <i class="fas fa-paper-plane"></i></button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Premium Custom Map -->
+    <section class="premium-map-section" style="position: relative; width: 100%; min-height: 600px; background: url('images/premium_map.png') center/cover no-repeat; display: flex; align-items: center; justify-content: center; padding: 4rem 2rem;">
+      <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(15, 23, 42, 0.3), rgba(15, 23, 42, 0.8));"></div>
+      
+      <div style="position: relative; z-index: 10; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px; padding: 3rem; max-width: 450px; text-align: center; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5); color: #fff;">
+        <div style="width: 70px; height: 70px; background: var(--accent-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1.5rem; box-shadow: 0 0 20px var(--accent-color); color: #fff;">
+          <i class="fas fa-map-marker-alt"></i>
+        </div>
+        <h2 style="font-size: 2.2rem; font-weight: 700; margin-bottom: 1rem; color: #fff;">Our Location</h2>
+        <p style="font-size: 1.1rem; color: #e2e8f0; margin-bottom: 2rem; line-height: 1.6;">
+          <strong>Nexus Escape Rooms</strong><br>
+          123 Adventure Lane, Suite 404<br>
+          Downtown District, NY 10001
+        </p>
+        <a href="https://maps.google.com" target="_blank" class="btn-primary" style="display: inline-flex; align-items: center; gap: 10px; width: 100%; justify-content: center;">
+          Get Directions <i class="fas fa-external-link-alt"></i>
+        </a>
+      </div>
+    </section>
+
+<section class="event-inquiry-section">
+      <div class="section-container split-layout reverse">
+        <div class="split-text">
+          <h2 class="section-title">Private Events & Buyouts</h2>
+          <p class="section-desc" style="margin-bottom: 1.5rem;">Planning a massive corporate retreat or a huge party? Skip the standard support line and talk directly to our Event Coordinators.</p>
+          <p class="section-desc">We offer full-facility buyouts for groups of up to 150 people. Our dedicated team will work with you to create a completely custom experience, including private tournaments, exclusive access to all escape rooms, and premium catered food and beverage packages.</p>
+          <ul class="protocol-list" style="list-style: none; padding: 0; margin-bottom: 2rem; color: var(--text-secondary); font-size: 1.05rem;">
+            <li style="margin-bottom: 0.8rem;"><i class="fas fa-check-circle" style="color: var(--accent-color); margin-right: 10px;"></i> Full Facility Access</li>
+            <li style="margin-bottom: 0.8rem;"><i class="fas fa-check-circle" style="color: var(--accent-color); margin-right: 10px;"></i> Dedicated Event Coordinator</li>
+            <li style="margin-bottom: 0.8rem;"><i class="fas fa-check-circle" style="color: var(--accent-color); margin-right: 10px;"></i> Custom Catering & Bar Options</li>
+          </ul>
+          <button class="btn-outline mt-2">Request Event Proposal</button>
+        </div>
+        <div class="split-image">
+          <img src="images/event_inquiry.jpg" alt="Corporate Event">
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Parking & Directions -->
+    <section class="parking-directions-section text-center">
+      <div class="section-container">
+        <h2 class="section-title">Parking & Transit</h2>
+        <div class="parking-grid">
+          <div class="p-card">
+            <i class="fas fa-car"></i>
+            <h4>Valet Parking</h4>
+            <p>$10 flat rate on weekends. Pull up directly to the main entrance.</p>
+          </div>
+          <div class="p-card">
+            <i class="fas fa-parking"></i>
+            <h4>Street Parking</h4>
+            <p>Free after 6 PM. Check the signs for daytime metering.</p>
+          </div>
+          <div class="p-card">
+            <i class="fas fa-subway"></i>
+            <h4>Public Transit</h4>
+            <p>We are a 5-minute walk from the Red Line Downtown Station.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Social Media Hub -->
+    <section class="social-hub-section text-center">
+      <div class="section-container">
+        <h2 class="section-title">Follow the Adventure</h2>
+        <p class="section-desc mx-auto">Tag us in your victory photos!</p>
+        <div class="social-links-big">
+          <a href="#" class="s-link ig"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="s-link tt"><i class="fab fa-tiktok"></i></a>
+          <a href="#" class="s-link fb"><i class="fab fa-facebook-f"></i></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. Contact FAQ -->
+    <section class="contact-faq-section text-center">
+      <div class="section-container">
+        <h2 class="section-title">Quick Answers</h2>
+        <div class="faq-grid">
+          <div class="faq-item">
+            <h4>Can I change my booking time?</h4>
+            <p>Yes, you can reschedule up to 24 hours in advance using the link in your.</p>
+          </div>
+          <div class="faq-item">
+            <h4>I left something behind!</h4>
+            <p>Fill out the "Lost and Found" form above. We keep items secured for 30 days.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========== NEW FOOTER SECTION ========== -->
+  <footer id="contact" class="footer">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="footer-logo">
+        <i class="fas fa-cube" style="color: var(--accent-color); font-size: 1.8rem; filter: drop-shadow(0 0 8px var(--accent-color));"></i>
+        <span style="font-weight: 800; font-size: 1.5rem; background: linear-gradient(90deg, var(--accent-color), #9d00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase;">NEXUS</span>
+          </a>
+          <p class="footer-description">Escape Rooms & Axe Throwing — Book rooms, sign waivers, manage teams all in one dashboard.</p>
+          <div class="footer-actions">
+            <a href="javascript:void(0)" class="footer-icon-btn" title="Facebook" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="javascript:void(0)" class="footer-icon-btn" title="Twitter" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="javascript:void(0)" class="footer-icon-btn" title="Instagram" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="javascript:void(0)" class="footer-icon-btn" title="LinkedIn" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-linkedin-in"></i>
+            </a>
+            <a href="javascript:void(0)" class="footer-icon-btn" title="YouTube" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-youtube"></i>
+            </a>
+          </div>
+        </div>
+        <div class="footer-links">
+          <div class="footer-column">
+            <h4>Explore</h4>
+            <a href="index.html" class="footer-link">Home</a>
+            <a href="#rooms" class="footer-link">Book Rooms/Lanes</a>
+            <a href="user_dashboard.html" class="footer-link">Digital Waivers</a>
+            <a href="user_dashboard.html" class="footer-link">Team Rosters</a>
+          </div>
+          <div class="footer-column">
+            <h4>Services</h4>
+            <a href="#packages" class="footer-link">Packages</a>
+            <a href="#safety-demos" class="footer-link">Safety Demos</a>
+            <a href="#contact" class="footer-link">Contact</a>
+            <a href="user_dashboard.html" class="footer-link">Dashboard</a>
+          </div>
+          <div class="footer-column">
+            <h4>Contact Us</h4>
+            <a href="javascript:void(0)" class="footer-link" style="cursor: default;"><i class="fas fa-map-marker-alt" style="margin-right: 8px;"></i> 123 Escape Ave, NY 10001</a>
+            <a href="javascript:void(0)" class="footer-link" style="cursor: default;"><i class="fas fa-phone-alt fa-flip-horizontal" style="margin-right: 8px;"></i> +1 (555) 123-4567</a>
+            <a href="javascript:void(0)" class="footer-link" style="cursor: default;"><i class="fas fa-envelope" style="margin-right: 8px;"></i> hello@venuedash.com</a>
+          </div>
+          <div class="footer-column newsletter-col" style="flex: 1.5; min-width: 260px; max-width: 350px;">
+            <h4>Newsletter</h4>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.8rem; line-height: 1.4;">Subscribe to get the latest escape room updates and exclusive offers directly in your inbox.</p>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="email" placeholder="Email address" style="padding: 0.5rem 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: transparent; color: var(--text-primary); outline: none; width: 100%; font-family: inherit; font-size: 0.9rem;">
+              <button style="background: var(--accent-color); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; transition: var(--transition); font-weight: 600; font-family: inherit;">Subscribe</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Escape Room & Axe Throwing Venue. All rights reserved. | VenueDash — Next‑gen booking experience</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const htmlEl = document.documentElement;
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.getElementById('nav-menu');
+    const dropdowns = document.querySelectorAll('.nav-item.dropdown');
+
+    // Desktop controls
+    const themeToggleDesktop = document.getElementById('theme-toggle');
+    const themeIconDesktop = document.getElementById('theme-icon');
+    const rtlToggleDesktop = document.getElementById('rtl-toggle');
+    // Mobile controls
+    const mobileThemeBtn = document.getElementById('mobile-theme-toggle');
+    const mobileThemeIcon = document.getElementById('mobile-theme-icon');
+    const mobileRtlBtn = document.getElementById('mobile-rtl-toggle');
+    // Footer controls
+    // Removed
+
+    function updateThemeIcons(isDark) {
+      const iconClass = isDark ? 'fas fa-sun' : 'fas fa-moon';
+      if (themeIconDesktop) themeIconDesktop.className = iconClass;
+      if (mobileThemeIcon) mobileThemeIcon.className = iconClass;
+    }
+
+    const initialDark = htmlEl.getAttribute('data-theme') === 'dark';
+    updateThemeIcons(initialDark);
+
+    function toggleTheme() {
+      if (htmlEl.getAttribute('data-theme') === 'dark') {
+        htmlEl.removeAttribute('data-theme');
+        updateThemeIcons(false);
+      } else {
+        htmlEl.setAttribute('data-theme', 'dark');
+        updateThemeIcons(true);
+      }
+    }
+
+    function toggleRTL() {
+      if (htmlEl.getAttribute('dir') === 'rtl') {
+        htmlEl.removeAttribute('dir');
+      } else {
+        htmlEl.setAttribute('dir', 'rtl');
+      }
+    }
+
+    if (themeToggleDesktop) themeToggleDesktop.addEventListener('click', toggleTheme);
+    if (mobileThemeBtn) mobileThemeBtn.addEventListener('click', toggleTheme);
+    if (rtlToggleDesktop) rtlToggleDesktop.addEventListener('click', toggleRTL);
+    if (mobileRtlBtn) mobileRtlBtn.addEventListener('click', toggleRTL);
+
+    // Stable Home/Dashboard clicks (no movement)
+    const homeLink = document.getElementById('home-link');
+    const dashboardLink = document.getElementById('dashboard-link');
+    if (homeLink) {
+      homeLink.addEventListener('click', (e) => {
+        e.preventDefault();
+      });
+    }
+    if (dashboardLink) {
+      dashboardLink.addEventListener('click', (e) => {
+        e.preventDefault();
+      });
+    }
+
+    // Prevent all placeholder links from causing any scroll or navigation
+    document.querySelectorAll('a[href="javascript:void(0)"]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    });
+
+    // Mobile menu toggle
+    if (hamburger) {
+      hamburger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navMenu.classList.toggle('active');
+        hamburger.innerHTML = navMenu.classList.contains('active') ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : '';
+      });
+    }
+
+    // Mobile dropdown toggles
+    dropdowns.forEach(drop => {
+      const link = drop.querySelector('.nav-link');
+      if (link) {
+        link.addEventListener('click', (e) => {
+          if (window.innerWidth <= 991) {
+            e.preventDefault();
+            dropdowns.forEach(other => {
+              if (other !== drop && other.classList.contains('active')) other.classList.remove('active');
+            });
+            drop.classList.toggle('active');
+          }
+        });
+      }
+    });
+
+    // Close mobile menu after clicking any normal item
+    const closeTriggers = document.querySelectorAll('.nav-link:not(#home-link):not(#dashboard-link), .dropdown-link, #mobile-login-btn');
+    closeTriggers.forEach(link => {
+      link.addEventListener('click', (e) => {
+        if (e.target.closest('#mobile-theme-toggle') || e.target.closest('#mobile-rtl-toggle')) return;
+        if (window.innerWidth <= 991 && navMenu.classList.contains('active')) {
+          navMenu.classList.remove('active');
+          if (hamburger) hamburger.innerHTML = '<i class="fas fa-bars"></i>';
+          document.body.style.overflow = '';
+        }
+      });
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 991 && navMenu.classList.contains('active')) {
+        navMenu.classList.remove('active');
+        if (hamburger) hamburger.innerHTML = '<i class="fas fa-bars"></i>';
+        document.body.style.overflow = '';
+        dropdowns.forEach(d => d.classList.remove('active'));
+      }
+    });
+  </script>
+</body>
+</html>

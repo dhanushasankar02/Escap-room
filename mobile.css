@@ -1,0 +1,219 @@
+/* mobile.css - Global Responsive Fixes for All Screen Sizes */
+
+/* 1. Global Box-Sizing & Prevent Horizontal Scrolling */
+html, body {
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 100vw !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  -webkit-text-size-adjust: 100%;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit !important;
+}
+
+/* Ensure no standard containers can push screen width out */
+section, header, footer, main, nav, article, aside, figure {
+  max-width: 100vw !important;
+}
+
+/* 2. Responsive Images & Media */
+img, video, canvas, svg, iframe, object, embed {
+  max-width: 100% !important;
+  height: auto !important;
+  display: block;
+}
+
+/* 3. Ensure Text Stays Inside Containers */
+p, h1, h2, h3, h4, h5, h6, span, a, div, li, td, th {
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  max-width: 100%;
+}
+
+/* Fix any overflowing tables */
+.table-container {
+  width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+table {
+  width: 100% !important;
+  white-space: nowrap;
+}
+
+/* Navbar / Container base fixes to ensure they never exceed viewport */
+.nav-container {
+  max-width: 100vw !important;
+  box-sizing: border-box !important;
+  flex-wrap: nowrap !important;
+}
+
+
+/* === Breakpoint: 1024px (Tablets & Small Laptops) === */
+@media (max-width: 1024px) {
+  section, .section, .container {
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Use Grid with responsive fallbacks */
+  .grid, .features-grid, .cards-container, .pricing-grid, .roster-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+    gap: 1.5rem !important;
+    width: 100% !important;
+  }
+  
+  /* Split Layouts / Hero sections */
+  .split-layout, .hero-content, .about-content {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .split-layout.reverse {
+    flex-direction: column-reverse !important;
+  }
+  .split-image, .split-text, .split-form {
+    width: 100% !important;
+  }
+
+  /* Responsive Typography via Clamp */
+  .hero-title, h1 {
+    font-size: clamp(2.5rem, 5vw, 4rem) !important;
+    line-height: 1.2 !important;
+  }
+}
+
+
+/* === Breakpoint: 768px (Tablets & Large Phones) === */
+@media (max-width: 768px) {
+
+  /* Navbar Collapse */
+  .hamburger {
+    display: block !important;
+  }
+
+  /* Responsive Padding */
+  section, .section, .container {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+    padding-top: 3rem !important;
+    padding-bottom: 3rem !important;
+  }
+
+  /* Force Cards to Stack Vertically using Flexbox */
+  .grid, .features-grid, .cards-container, .pricing-grid, .roster-grid, .flex-row {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 1.5rem !important;
+  }
+  
+  .card, .price-card, .feature-card, .room-card, .team-card {
+    width: 100% !important;
+    margin-bottom: 1rem !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Responsive Typography via Media Queries */
+  h1, .hero-title {
+    font-size: 2.2rem !important;
+  }
+  h2, .section-title {
+    font-size: 1.8rem !important;
+  }
+  p, .subtitle, .hero-subtitle {
+    font-size: 1rem !important;
+  }
+
+  /* Buttons should fit mobile screens */
+  .btn, button:not(.hamburger):not(.icon-btn):not(.mobile-action-btn):not(.theme-toggle), 
+  .action-btn, .login-btn, input[type="submit"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-bottom: 0.5rem !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Form Elements */
+  input, select, textarea, .form-control {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+
+
+/* === Breakpoint: 480px (Small Phones) === */
+@media (max-width: 480px) {
+  /* Maintain Equal Spacing */
+  section, .section, .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+
+  /* Responsive Typography Scale Down */
+  h1, .hero-title {
+    font-size: 1.8rem !important;
+  }
+  h2, .section-title {
+    font-size: 1.5rem !important;
+  }
+  
+  /* Inputs font size >= 16px to prevent iOS auto-zoom */
+  input, select, textarea, .form-control {
+    font-size: 16px !important; 
+  }
+
+  /* Fix RTL Alignment in Dark/Light Modes */
+  [dir="rtl"] .icon, .rtl i, [dir="rtl"] .fas, [dir="rtl"] .far, [dir="rtl"] .fab {
+    margin-left: 0.5rem !important;
+    margin-right: 0 !important;
+  }
+  
+  .nav-container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}
+
+
+/* === Breakpoint: 320px (Extra Small Phones) === */
+@media (max-width: 320px) {
+  section, .section, .container {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  h1, .hero-title {
+    font-size: 1.5rem !important;
+  }
+  h2, .section-title {
+    font-size: 1.25rem !important;
+  }
+
+  /* Compact Buttons */
+  .btn, button, .action-btn {
+    padding: 0.6rem 1rem !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+
+
+

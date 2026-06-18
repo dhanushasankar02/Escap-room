@@ -1,0 +1,1542 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Escape Room & Axe Throwing | VenueDash</title>
+  <meta name="description" content="Dashboard for booking rooms, digital waivers, team rosters & safety demos.">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ----- GLOBAL VARIABLES (Light / Dark) ----- */
+    :root {
+      --bg-color: #f8fafc;
+      --nav-bg: rgba(255, 255, 255, 0.85);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --accent-color: #6366f1;
+      --accent-hover: #4f46e5;
+      --border-color: rgba(0, 0, 0, 0.1);
+      --dropdown-bg: rgba(255, 255, 255, 0.95);
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #0f172a;
+      --nav-bg: rgba(15, 23, 42, 0.85);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent-color: #38bdf8;
+      --accent-hover: #0ea5e9;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --dropdown-bg: rgba(15, 23, 42, 0.95);
+      --shadow-color: rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Navbar */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: var(--nav-bg);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      z-index: 1000;
+      padding: 0 1.5rem;
+      transition: var(--transition);
+    }
+
+    .nav-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 80px;
+      gap: 1rem;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-primary);
+      font-weight: 700;
+      font-size: 1.4rem;
+      white-space: nowrap;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      color: var(--accent-color);
+      filter: drop-shadow(0 0 8px var(--accent-color));
+    }
+
+    /* Desktop navigation */
+    .nav-menu {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      list-style: none;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .nav-item {
+      position: relative;
+      white-space: nowrap;
+    }
+
+    .nav-link {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 0.5rem 0.7rem;
+      border-radius: 8px;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .nav-link:hover {
+      color: var(--accent-color);
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    /* Desktop action buttons */
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      white-space: nowrap;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 1rem;
+    }
+
+    .icon-btn:hover {
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+
+    .login-btn {
+      background: var(--accent-color);
+      color: #fff !important;
+      text-decoration: none;
+      padding: 0.5rem 1.25rem;
+      border-radius: 20px;
+      font-weight: 600;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Dropdowns */
+    .dropdown-menu {
+      position: absolute;
+      top: 120%;
+      left: 0;
+      background: var(--dropdown-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      min-width: 200px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      box-shadow: 0 10px 25px var(--shadow-color);
+      padding: 0.5rem 0;
+    }
+
+    .nav-item.dropdown:hover .dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .nav-item.dropdown:hover .nav-link i {
+      transform: rotate(180deg);
+    }
+
+    .dropdown-link {
+      display: block;
+      padding: 0.75rem 1.5rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .dropdown-link:hover {
+      color: var(--text-primary);
+      background: rgba(99, 102, 241, 0.05);
+      padding-left: 2rem;
+    }
+
+    .nav-item:nth-last-child(2) .dropdown-menu {
+      right: 0;
+      left: auto;
+    }
+
+    /* Mobile elements */
+    .hamburger {
+      display: none;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .mobile-nav-action {
+      display: none;
+    }
+
+    /* Main content */
+    .main-content {
+      flex: 1;
+      margin-top: 80px;
+      padding: 6rem 2rem;
+      text-align: center;
+      background: radial-gradient(circle at center, rgba(99, 102, 241, 0.05) 0%, transparent 60%);
+    }
+
+    .main-title {
+      font-size: 3.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent-color), var(--text-primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .main-subtitle {
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      max-width: 650px;
+      margin: 1rem auto 0;
+    }
+
+    /* ========== FOOTER STYLES ========== */
+    .footer {
+      background: var(--dropdown-bg);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border-color);
+      padding: 3rem 2rem 1.5rem;
+      margin-top: auto;
+    }
+
+    .footer-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .footer-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .footer-brand {
+      flex: 1;
+      min-width: 250px;
+      max-width: 320px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-primary);
+      font-weight: 700;
+      font-size: 1.4rem;
+      white-space: nowrap;
+      margin-bottom: 1rem;
+    }
+
+    .footer-description {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      max-width: 260px;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      flex: 2;
+      justify-content: space-between;
+    }
+
+    .footer-column {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .footer-column h4 {
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .footer-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+
+    .footer-link:hover {
+      color: var(--accent-color);
+      transform: translateX(4px);
+    }
+
+    .footer-actions {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .footer-icon-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 1rem;
+    }
+
+    .footer-icon-btn:hover {
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    /* Responsive footer */
+    @media (max-width: 991px) {
+      .footer-grid {
+        flex-direction: column;
+        gap: 2rem;
+      }
+      .footer-links {
+        gap: 2.5rem;
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .footer-column {
+        flex: 1 1 200px;
+      }
+    }
+
+    @media (max-width: 800px) {
+      .main-title {
+        font-size: 2.5rem;
+      }
+      .footer-column {
+        flex: 1 1 45%;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .main-title {
+        font-size: 2rem;
+      }
+      .main-subtitle {
+        font-size: 1rem;
+      }
+      .main-content {
+        padding: 4rem 1.5rem;
+      }
+      .footer {
+        padding: 2rem 1.5rem 1rem;
+      }
+      .footer-links {
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      .footer-column, .newsletter-col {
+        max-width: 100% !important;
+        flex: 1 1 auto;
+      }
+    }
+
+    /* RESPONSIVE (tablet & mobile) for navbar */
+    @media (max-width: 1200px) {
+      .nav-link {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.4rem;
+      }
+      .nav-menu {
+        gap: 0.1rem;
+      }
+      .nav-actions {
+        gap: 0.4rem;
+      }
+      .login-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+      }
+    }
+
+    @media (max-width: 991px) {
+      .nav-actions {
+        display: none;
+      }
+      .hamburger {
+        display: block;
+        z-index: 1001;
+      }
+
+      .nav-menu {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 280px;
+        height: 100vh;
+        height: 100dvh;
+        background: var(--dropdown-bg);
+        backdrop-filter: blur(20px);
+        border-left: 1px solid var(--border-color);
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        padding: 90px 1.2rem 1.5rem;
+        transition: 0.35s cubic-bezier(0.77, 0, 0.175, 1);
+        box-shadow: -10px 0 30px var(--shadow-color);
+        overflow-y: auto;
+        gap: 0;
+        flex-wrap: nowrap;
+      }
+
+      html[dir="rtl"] .nav-menu {
+        right: auto;
+        left: -100%;
+        border-left: none;
+        border-right: 1px solid var(--border-color);
+      }
+
+      .nav-menu.active {
+        right: 0;
+      }
+      html[dir="rtl"] .nav-menu.active {
+        left: 0;
+        right: auto;
+      }
+
+      .nav-item {
+        width: 100%;
+        white-space: normal;
+      }
+
+      .nav-link {
+        width: 100%;
+        padding: 0.7rem 0;
+        font-size: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        border-radius: 0;
+      }
+
+      .dropdown-menu {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        max-height: 0;
+        overflow: hidden;
+        padding: 0;
+        transition: max-height 0.3s ease;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+      }
+
+      .nav-item.dropdown.active .dropdown-menu {
+        max-height: 200px;
+        padding: 0.3rem 0 0.3rem 1rem;
+      }
+
+      .dropdown-link {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
+
+      .mobile-nav-action {
+        display: flex;
+        width: 100%;
+        margin-top: 0.5rem;
+        border-top: 1px solid var(--border-color);
+        flex-direction: column;
+        gap: 0.4rem;
+        padding-top: 0.8rem;
+      }
+
+      .mobile-action-btn {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.5rem 0.8rem;
+        border-radius: 40px;
+        width: 100%;
+        justify-content: center;
+        gap: 10px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+      }
+
+      .mobile-action-btn:hover {
+        background: rgba(99, 102, 241, 0.1);
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+      }
+
+      .mobile-login-link {
+        background: var(--accent-color);
+        color: white !important;
+        text-decoration: none;
+        border: none;
+      }
+
+      .mobile-login-link:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+      }
+    }
+
+    /* Home Page Specific Styles */
+    .main-content-home {
+      width: 100%;
+      padding-top: 80px; /* offset navbar */
+    }
+    
+    section {
+      padding: 6rem 2rem;
+      position: relative;
+    }
+    
+    .section-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .text-center { text-align: center; }
+    .text-white { color: #fff !important; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .mt-3 { margin-top: 1rem; }
+    .mt-4 { margin-top: 2rem; }
+    
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--accent-color), var(--text-primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .section-desc {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      max-width: 700px;
+      margin-bottom: 3rem;
+      line-height: 1.6;
+    }
+    
+    .text-center .section-desc {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    /* Buttons */
+    .btn-primary, .btn-secondary, .btn-outline {
+      display: inline-block;
+      padding: 0.8rem 1.8rem;
+      border-radius: 30px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: var(--transition);
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      font-size: 1rem;
+    }
+    
+    .btn-primary {
+      background: var(--accent-color);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+    
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+    
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-3px);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      color: var(--text-primary);
+      border: 2px solid var(--accent-color);
+    }
+    
+    .btn-outline:hover {
+      background: var(--accent-color);
+      color: #fff;
+    }
+    
+    .btn-large {
+      padding: 1rem 2.5rem;
+      font-size: 1.1rem;
+    }
+
+    /* 1. Hero Section */
+    .hero-section {
+      height: calc(100vh - 80px);
+      min-height: 600px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      padding: 2rem;
+      margin-top: -80px; /* To go under navbar but visual center is adjusted */
+      padding-top: 80px;
+    }
+    
+    .hero-content {
+      max-width: 800px;
+      z-index: 2;
+    }
+    
+    .hero-title {
+      font-size: 4.5rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 1rem;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+    
+    .hero-subtitle {
+      font-size: 1.3rem;
+      color: #e2e8f0;
+      margin-bottom: 2rem;
+      text-shadow: 0 1px 5px rgba(0,0,0,0.5);
+    }
+    
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* Split Layouts (About, Axe, Visit) */
+    .split-layout {
+      display: flex;
+      align-items: center;
+      gap: 4rem;
+    }
+    
+    .split-layout.reverse {
+      flex-direction: row-reverse;
+    }
+    
+    .split-text {
+      flex: 1;
+    }
+    
+    .split-image {
+      flex: 1;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px var(--shadow-color);
+    }
+    
+    .split-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+    
+    .split-image:hover img {
+      transform: scale(1.05);
+    }
+    
+    .feature-list {
+      list-style: none;
+      margin-top: 1.5rem;
+    }
+    
+    .feature-list li {
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+    
+    .feature-list i {
+      color: var(--accent-color);
+      font-size: 1.2rem;
+    }
+
+    /* Cards Grid (Rooms) */
+    .about-section {
+      background: var(--bg-color);
+    }
+    
+    .rooms-section {
+      background: radial-gradient(circle at center, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+    }
+    
+    .card {
+      background: var(--dropdown-bg);
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+      transition: var(--transition);
+      box-shadow: 0 10px 30px var(--shadow-color);
+    }
+    
+    .card:hover {
+      transform: translateY(-10px);
+      border-color: var(--accent-color);
+    }
+    
+    .card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+    }
+    
+    .card-content {
+      padding: 1.5rem;
+    }
+    
+    .card-content h3 {
+      font-size: 1.4rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .card-content p {
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    /* Axe Arena Stats */
+    .axe-section {
+      background: var(--bg-color);
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    
+    .stat-box h4 {
+      font-size: 2.5rem;
+      color: var(--accent-color);
+      margin-bottom: 0.2rem;
+    }
+    
+    .stat-box p {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* Pricing Section */
+    .pricing-section {
+      background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.05) 0%, transparent 60%);
+    }
+    
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      align-items: center;
+    }
+    
+    .price-card {
+      background: var(--dropdown-bg);
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      border: 1px solid var(--border-color);
+      text-align: center;
+      transition: var(--transition);
+      position: relative;
+    }
+    
+    .price-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px var(--shadow-color);
+    }
+    
+    .price-card.popular {
+      border-color: var(--accent-color);
+      transform: scale(1.05);
+      background: linear-gradient(180deg, var(--dropdown-bg) 0%, rgba(99, 102, 241, 0.05) 100%);
+    }
+    
+    .price-card.popular:hover {
+      transform: scale(1.05) translateY(-5px);
+    }
+    
+    .badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent-color);
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .price {
+      font-size: 3rem;
+      font-weight: 700;
+      margin: 1.5rem 0;
+      color: var(--text-primary);
+    }
+    
+    .price span {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+    
+    .price-card ul {
+      list-style: none;
+      margin-bottom: 2rem;
+      text-align: left;
+    }
+    
+    .price-card ul li {
+      margin-bottom: 1rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .price-card ul li::before {
+      content: '\2713';
+      color: var(--accent-color);
+      font-weight: bold;
+    }
+
+    /* Team Section */
+    .team-section {
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    /* Testimonials */
+    .testimonial-section {
+      background: var(--bg-color);
+    }
+
+    .reviews-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    
+    .review-card {
+      background: var(--dropdown-bg);
+      padding: 2rem;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      text-align: left;
+    }
+    
+    .stars {
+      color: #fbbf24;
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+    }
+    
+    .review-card p {
+      font-style: italic;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+    
+    .review-card h5 {
+      font-size: 1rem;
+      color: var(--text-primary);
+    }
+
+    /* Visit Section */
+    .visit-section {
+      background: var(--bg-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .info-block {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+    
+    .info-block i {
+      font-size: 1.5rem;
+      color: var(--accent-color);
+      margin-top: 0.2rem;
+    }
+    
+    .info-block h4 {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .info-block p {
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    
+    .map-placeholder {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(56, 189, 248, 0.2));
+      min-height: 350px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+    }
+    
+    .map-inner {
+      text-align: center;
+      color: var(--accent-color);
+      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 1.2rem;
+    }
+    
+    .map-inner i {
+      font-size: 2.5rem;
+    }
+
+    /* Responsive adjustments for new sections */
+    @media (max-width: 991px) {
+      .split-layout, .split-layout.reverse {
+        flex-direction: column;
+        gap: 2.5rem;
+      }
+      .hero-title { color: #fff; font-size: 3.5rem; }
+      .price-card.popular { transform: none; }
+      .price-card.popular:hover { transform: translateY(-5px); }
+    }
+    
+    @media (max-width: 680px) {
+      section { padding: 4rem 1.5rem; }
+      .hero-title { color: #fff; font-size: 2.5rem; }
+      .hero-subtitle { font-size: 1.1rem; }
+      .section-title { font-size: 2rem; }
+    }
+  </style>
+  <link rel="stylesheet" href="mobile.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <script>
+    (function() {
+      const isDark = localStorage.getItem('venue_theme_dark');
+      const htmlEl = document.documentElement;
+      let currentTheme = htmlEl.getAttribute('data-theme');
+      const isAdmin = currentTheme && currentTheme.includes('admin');
+      
+      if (isDark === 'true') {
+        htmlEl.setAttribute('data-theme', isAdmin ? 'admin-dark' : 'dark');
+      } else if (isDark === 'false') {
+        if (isAdmin) {
+          htmlEl.setAttribute('data-theme', 'admin-light');
+        } else if (currentTheme === 'dark' || currentTheme === 'light') {
+          htmlEl.setAttribute('data-theme', 'light');
+        } else {
+          htmlEl.removeAttribute('data-theme');
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        document.body.addEventListener('click', (e) => {
+          const toggleBtn = e.target.closest('#theme-toggle, #mobile-theme-toggle');
+          if (toggleBtn) {
+            setTimeout(() => {
+              const theme = document.documentElement.getAttribute('data-theme');
+              const darkActive = theme === 'dark' || theme === 'admin-dark';
+              localStorage.setItem('venue_theme_dark', darkActive);
+            }, 50);
+          }
+        });
+
+        setTimeout(() => {
+          const theme = document.documentElement.getAttribute('data-theme');
+          const darkActive = theme === 'dark' || theme === 'admin-dark';
+          
+          const themeIcons = document.querySelectorAll('#theme-icon, #theme-toggle i, #mobile-theme-icon');
+          themeIcons.forEach(icon => {
+            if (darkActive) {
+              icon.classList.remove('fa-moon');
+              icon.classList.add('fa-sun');
+            } else {
+              icon.classList.remove('fa-sun');
+              icon.classList.add('fa-moon');
+            }
+          });
+        }, 100);
+      });
+    })();
+  </script>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo-container">
+        <i class="fas fa-cube" style="color: var(--accent-color); font-size: 1.8rem; filter: drop-shadow(0 0 8px var(--accent-color));"></i>
+        <span style="font-weight: 800; font-size: 1.5rem; background: linear-gradient(90deg, var(--accent-color), #9d00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase;">NEXUS</span>
+      </a>
+
+      <ul class="nav-menu" id="nav-menu">
+        <li class="nav-item dropdown">
+          <a href="index.html" class="nav-link" id="home-link">Home <i class="fas fa-chevron-down"></i></a>
+          <div class="dropdown-menu">
+            <a href="index.html" class="dropdown-link">Home 1</a>
+            <a href="./home2.html" class="dropdown-link">Home 2</a>
+          </div>
+        </li>
+        <li class="nav-item"><a href="./book_rooms.html" class="nav-link">Book Rooms/Lanes</a></li>
+        <li class="nav-item"><a href="./digital_waivers.html" class="nav-link">Digital Waivers</a></li>
+        <li class="nav-item"><a href="./team_rosters.html" class="nav-link">Team Rosters</a></li>
+        <li class="nav-item"><a href="./packages.html" class="nav-link">Packages</a></li>
+        <li class="nav-item"><a href="./Safety Demos.html" class="nav-link">Safety Demos</a></li>
+        <li class="nav-item"><a href="./Contact.html" class="nav-link">Contact</a></li>
+        <li class="nav-item dropdown">
+          <a href="javascript:void(0)" class="nav-link" id="dashboard-link">Dashboard <i class="fas fa-chevron-down"></i></a>
+          <div class="dropdown-menu">
+            <a href="./user_dashboard.html" class="dropdown-link">Users</a>
+            <a href="./admin_dashboard.html" class="dropdown-link">Admin</a>
+          </div>
+        </li>
+        <li class="mobile-nav-action">
+          <button id="mobile-theme-toggle" class="mobile-action-btn">
+            <i class="fas fa-sun" id="mobile-theme-icon"></i> Theme
+          </button>
+          <button id="mobile-rtl-toggle" class="mobile-action-btn">
+            <i class="fas fa-arrows-left-right"></i> RTL Layout
+          </button>
+          <a href="login.html" class="mobile-action-btn mobile-login-link" id="mobile-login-btn">
+            <i class="fas fa-user-circle"></i> Login
+          </a>
+        </li>
+      </ul>
+
+      <div class="nav-actions">
+        <button id="theme-toggle" class="icon-btn" title="Dark/Light Mode">
+          <i class="fas fa-sun" id="theme-icon"></i>
+        </button>
+        <button id="rtl-toggle" class="icon-btn" title="Toggle RTL Layout">
+          <i class="fas fa-arrows-left-right"></i>
+        </button>
+        <a href="login.html" class="login-btn"><i class="fas fa-user-circle"></i> Login</a>
+      </div>
+
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+    <style>
+      .nav-link.active, .dropdown-link.active {
+        color: var(--accent-color) !important;
+        font-weight: 700;
+        background: rgba(99, 102, 241, 0.08);
+        border-radius: 4px;
+      }
+    </style>
+    <script>
+      (function() {
+        let currentPath = window.location.pathname.split('/').pop() || 'index.html';
+        currentPath = decodeURIComponent(currentPath);
+        const navLinks = document.querySelectorAll('.navbar .nav-link, .navbar .dropdown-link');
+        navLinks.forEach(link => {
+          let linkHref = link.getAttribute('href');
+          if (!linkHref || linkHref.startsWith('javascript:')) return;
+          let linkPath = linkHref.split('/').pop();
+          linkPath = decodeURIComponent(linkPath);
+          if (linkPath && currentPath.toLowerCase() === linkPath.toLowerCase()) {
+            link.classList.add('active');
+            const dropdown = link.closest('.dropdown-menu');
+            if (dropdown) {
+               const parentLink = dropdown.previousElementSibling;
+               if (parentLink && parentLink.classList.contains('nav-link')) {
+                 parentLink.classList.add('active');
+               }
+            }
+          }
+        });
+      })();
+    </script>
+  </nav>
+
+  <main class="main-content-home">
+    <!-- 1. Hero Section -->
+    <section class="hero-section" style="background-image: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.9)), url('images/main_venue_hero.png');">
+      <div class="hero-content">
+        <h1 class="hero-title">Unlock the Thrill</h1>
+        <p class="hero-subtitle">The ultimate Escape Room and Axe Throwing experience. Are you ready?</p>
+        <div class="hero-cta">
+          <a href="#rooms" class="btn-primary">Book Now</a>
+          <a href="#rooms" class="btn-secondary">Explore Rooms</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. The Experience (About Us) -->
+    <section class="about-section">
+      <div class="section-container split-layout">
+        <div class="split-text">
+          <h2 class="section-title">The Adrenaline Rush</h2>
+          <p class="section-desc">Immerse yourself in meticulously crafted worlds where every detail matters. Whether you're decoding cryptic clues in our award-winning escape rooms or hitting the bullseye in our axe throwing lanes, an unforgettable adventure awaits.</p>
+          <ul class="feature-list">
+            <li><i class="fas fa-check-circle"></i> Immersive Storylines</li>
+            <li><i class="fas fa-check-circle"></i> High-Tech Puzzles</li>
+            <li><i class="fas fa-check-circle"></i> Safe & Thrilling Axe Throwing</li>
+          </ul>
+        </div>
+        <div class="split-image">
+          <img src="images/gen_about_us.png" alt="Group solving puzzle">
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Featured Escape Rooms -->
+    <section id="rooms" class="rooms-section">
+      <div class="section-container">
+        <div class="text-center">
+          <h2 class="section-title">Choose Your Challenge</h2>
+          <p class="section-desc">Three unique scenarios. One hour on the clock. Can you escape?</p>
+        </div>
+        <div class="cards-grid">
+          <div class="card">
+            <img src="images/gen_alchemist.png" alt="Alchemist Lab">
+            <div class="card-content">
+              <h3>The Alchemist's Lab</h3>
+              <p>Discover the elixir of life before the mad alchemist returns.</p>
+              <div class="card-meta">
+                <span><i class="fas fa-users"></i> 2-6 Players</span>
+                <span><i class="fas fa-lock"></i> Difficulty: Medium</span>
+              </div>
+              <button class="btn-outline">View Details</button>
+            </div>
+          </div>
+          <div class="card">
+            <img src="images/gen_heist.png" alt="Bank Heist">
+            <div class="card-content">
+              <h3>The Great Vault Heist</h3>
+              <p>Infiltrate a high-tech facility and steal the diamond.</p>
+              <div class="card-meta">
+                <span><i class="fas fa-users"></i> 4-8 Players</span>
+                <span><i class="fas fa-lock"></i> Difficulty: Hard</span>
+              </div>
+              <button class="btn-outline">View Details</button>
+            </div>
+          </div>
+          <div class="card">
+            <img src="images/gen_zombie.png" alt="Zombie Outbreak">
+            <div class="card-content">
+              <h3>Patient Zero</h3>
+              <p>Find the cure in an abandoned medical facility. Hurry.</p>
+              <div class="card-meta">
+                <span><i class="fas fa-users"></i> 3-7 Players</span>
+                <span><i class="fas fa-lock"></i> Difficulty: Extreme</span>
+              </div>
+              <button class="btn-outline">View Details</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Axe Throwing Arena -->
+    <section id="safety-demos" class="axe-section">
+      <div class="section-container split-layout reverse">
+        <div class="split-text">
+          <h2 class="section-title">Axe Throwing Arena</h2>
+          <p class="section-desc">Unleash your inner lumberjack in our state-of-the-art axe throwing lanes. Perfect your aim with the help of our expert "Axe-perts" who will teach you safety, technique, and trick shots.</p>
+          <div class="stats-row">
+            <div class="stat-box">
+              <h4>12</h4>
+              <p>Premium Lanes</p>
+            </div>
+            <div class="stat-box">
+              <h4>100%</h4>
+              <p>Safe Environment</p>
+            </div>
+          </div>
+          <a href="javascript:void(0)" class="btn-primary mt-4">Reserve a Lane</a>
+        </div>
+        <div class="split-image">
+          <img src="images/gen_axe.png" alt="Axe throwing">
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Combo Packages -->
+    <section id="packages" class="pricing-section">
+      <div class="section-container">
+        <div class="text-center">
+          <h2 class="section-title">Epic Combo Packages</h2>
+          <p class="section-desc">Why choose? Do both and save.</p>
+        </div>
+        <div class="pricing-grid">
+          <div class="price-card">
+            <h3>The Escapist</h3>
+            <div class="price">$35<span>/person</span></div>
+            <ul>
+              <li>1 Escape Room (60 Min)</li>
+              <li>Free Digital Photo</li>
+              <li>Access to Lounge</li>
+            </ul>
+            <button class="btn-outline">Book Now</button>
+          </div>
+          <div class="price-card popular">
+            <div class="badge">Most Popular</div>
+            <h3>The Double Threat</h3>
+            <div class="price">$55<span>/person</span></div>
+            <ul>
+              <li>1 Escape Room (60 Min)</li>
+              <li>Axe Throwing (60 Min)</li>
+              <li>Free Digital Photo</li>
+              <li>Dedicated Coach</li>
+            </ul>
+            <button class="btn-primary">Book Now</button>
+          </div>
+          <div class="price-card">
+            <h3>The Lumberjack</h3>
+            <div class="price">$25<span>/person</span></div>
+            <ul>
+              <li>Axe Throwing (60 Min)</li>
+              <li>Dedicated Coach</li>
+              <li>Safety Gear Included</li>
+            </ul>
+            <button class="btn-outline">Book Now</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Team Building & Events -->
+    <section class="team-section" style="background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('images/team_event.png');">
+      <div class="section-container text-center text-white">
+        <h2 class="section-title text-white">Unforgettable Corporate Events</h2>
+        <p class="section-desc mx-auto text-white">Boost morale, improve communication, and celebrate success. Our venue can host groups from 10 to 100+ people with catering options available.</p>
+        <button class="btn-primary btn-large mt-4">Download Event Brochure</button>
+      </div>
+    </section>
+
+    <!-- 7. Hall of Fame (Testimonials) -->
+    <section class="testimonial-section">
+      <div class="section-container">
+        <div class="text-center">
+          <h2 class="section-title">Hall of Fame</h2>
+          <p class="section-desc">Don't just take our word for it.</p>
+        </div>
+        <div class="reviews-grid">
+          <div class="review-card">
+            <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+            <p>"The Alchemist Lab was mind-blowing! The puzzles were so clever and the set design was movie-quality."</p>
+            <h5>- Sarah M.</h5>
+          </div>
+          <div class="review-card">
+            <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+            <p>"First time throwing axes and the coaches made it so easy and safe. We had an absolute blast event!"</p>
+            <h5>- James T.</h5>
+          </div>
+          <div class="review-card">
+            <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+            <p>"Hosted our company offsite here. Doing the combo package was the best team-building event we've ever done."</p>
+            <h5>- Elena R.</h5>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+  </main>
+
+  <!-- ========== NEW FOOTER SECTION ========== -->
+  <footer id="contact" class="footer">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="footer-logo">
+        <i class="fas fa-cube" style="color: var(--accent-color); font-size: 1.8rem; filter: drop-shadow(0 0 8px var(--accent-color));"></i>
+        <span style="font-weight: 800; font-size: 1.5rem; background: linear-gradient(90deg, var(--accent-color), #9d00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase;">NEXUS</span>
+          </a>
+          <p class="footer-description">Escape Rooms & Axe Throwing â€” Book rooms, sign waivers, manage teams all in one dashboard.</p>
+          <div class="footer-actions">
+            <a href="javascript:void(0)" class="footer-icon-btn" title="Facebook" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="javascript:void(0)" class="footer-icon-btn" title="Twitter" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="javascript:void(0)" class="footer-icon-btn" title="Instagram" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="javascript:void(0)" class="footer-icon-btn" title="LinkedIn" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-linkedin-in"></i>
+            </a>
+            <a href="javascript:void(0)" class="footer-icon-btn" title="YouTube" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-youtube"></i>
+            </a>
+          </div>
+        </div>
+        <div class="footer-links">
+          <div class="footer-column">
+            <h4>Explore</h4>
+            <a href="index.html" class="footer-link">Home</a>
+            <a href="#rooms" class="footer-link">Book Rooms/Lanes</a>
+            <a href="user_dashboard.html" class="footer-link">Digital Waivers</a>
+            <a href="user_dashboard.html" class="footer-link">Team Rosters</a>
+          </div>
+          <div class="footer-column">
+            <h4>Services</h4>
+            <a href="#packages" class="footer-link">Packages</a>
+            <a href="#safety-demos" class="footer-link">Safety Demos</a>
+            <a href="#contact" class="footer-link">Contact</a>
+            <a href="user_dashboard.html" class="footer-link">Dashboard</a>
+          </div>
+          <div class="footer-column">
+            <h4>Contact Us</h4>
+            <a href="javascript:void(0)" class="footer-link" style="cursor: default;"><i class="fas fa-map-marker-alt" style="margin-right: 8px;"></i> 123 Escape Ave, NY 10001</a>
+            <a href="javascript:void(0)" class="footer-link" style="cursor: default;"><i class="fas fa-phone-alt" style="margin-right: 8px;"></i> +1 (555) 123-4567</a>
+            <a href="javascript:void(0)" class="footer-link" style="cursor: default;"><i class="fas fa-envelope" style="margin-right: 8px;"></i> hello@venuedash.com</a>
+          </div>
+          <div class="footer-column newsletter-col" style="flex: 1.5; min-width: 260px; max-width: 350px;">
+            <h4>Newsletter</h4>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.8rem; line-height: 1.4;">Subscribe to get the latest escape room updates and exclusive offers directly in your inbox.</p>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="email" placeholder="Email address" style="padding: 0.5rem 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: transparent; color: var(--text-primary); outline: none; width: 100%; font-family: inherit; font-size: 0.9rem;">
+              <button style="background: var(--accent-color); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; transition: var(--transition); font-weight: 600; font-family: inherit;">Subscribe</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Escape Room & Axe Throwing Venue. All rights reserved. | VenueDash â€” Nextâ€‘gen booking experience</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const htmlEl = document.documentElement;
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.getElementById('nav-menu');
+    const dropdowns = document.querySelectorAll('.nav-item.dropdown');
+
+    // Desktop controls
+    const themeToggleDesktop = document.getElementById('theme-toggle');
+    const themeIconDesktop = document.getElementById('theme-icon');
+    const rtlToggleDesktop = document.getElementById('rtl-toggle');
+    // Mobile controls
+    const mobileThemeBtn = document.getElementById('mobile-theme-toggle');
+    const mobileThemeIcon = document.getElementById('mobile-theme-icon');
+    const mobileRtlBtn = document.getElementById('mobile-rtl-toggle');
+    // Footer controls
+    // Removed
+
+    function updateThemeIcons(isDark) {
+      const iconClass = isDark ? 'fas fa-sun' : 'fas fa-moon';
+      if (themeIconDesktop) themeIconDesktop.className = iconClass;
+      if (mobileThemeIcon) mobileThemeIcon.className = iconClass;
+    }
+
+    const initialDark = htmlEl.getAttribute('data-theme') === 'dark';
+    updateThemeIcons(initialDark);
+
+    function toggleTheme() {
+      if (htmlEl.getAttribute('data-theme') === 'dark') {
+        htmlEl.removeAttribute('data-theme');
+        updateThemeIcons(false);
+      } else {
+        htmlEl.setAttribute('data-theme', 'dark');
+        updateThemeIcons(true);
+      }
+    }
+
+    function toggleRTL() {
+      if (htmlEl.getAttribute('dir') === 'rtl') {
+        htmlEl.removeAttribute('dir');
+      } else {
+        htmlEl.setAttribute('dir', 'rtl');
+      }
+    }
+
+    if (themeToggleDesktop) themeToggleDesktop.addEventListener('click', toggleTheme);
+    if (mobileThemeBtn) mobileThemeBtn.addEventListener('click', toggleTheme);
+    if (rtlToggleDesktop) rtlToggleDesktop.addEventListener('click', toggleRTL);
+    if (mobileRtlBtn) mobileRtlBtn.addEventListener('click', toggleRTL);
+
+    // Stable Home/Dashboard clicks (no movement)
+    const homeLink = document.getElementById('home-link');
+    const dashboardLink = document.getElementById('dashboard-link');
+    if (homeLink) {
+      homeLink.addEventListener('click', (e) => {
+        e.preventDefault();
+      });
+    }
+    if (dashboardLink) {
+      dashboardLink.addEventListener('click', (e) => {
+        e.preventDefault();
+      });
+    }
+
+    // Prevent all placeholder links from causing any scroll or navigation
+    document.querySelectorAll('a[href="javascript:void(0)"]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    });
+
+    // Mobile menu toggle
+    if (hamburger) {
+      hamburger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navMenu.classList.toggle('active');
+        hamburger.innerHTML = navMenu.classList.contains('active') ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : '';
+      });
+    }
+
+    // Mobile dropdown toggles
+    dropdowns.forEach(drop => {
+      const link = drop.querySelector('.nav-link');
+      if (link) {
+        link.addEventListener('click', (e) => {
+          if (window.innerWidth <= 991) {
+            e.preventDefault();
+            dropdowns.forEach(other => {
+              if (other !== drop && other.classList.contains('active')) other.classList.remove('active');
+            });
+            drop.classList.toggle('active');
+          }
+        });
+      }
+    });
+
+    // Close mobile menu after clicking any normal item
+    const closeTriggers = document.querySelectorAll('.nav-link:not(#home-link):not(#dashboard-link), .dropdown-link, #mobile-login-btn');
+    closeTriggers.forEach(link => {
+      link.addEventListener('click', (e) => {
+        if (e.target.closest('#mobile-theme-toggle') || e.target.closest('#mobile-rtl-toggle')) return;
+        if (window.innerWidth <= 991 && navMenu.classList.contains('active')) {
+          navMenu.classList.remove('active');
+          if (hamburger) hamburger.innerHTML = '<i class="fas fa-bars"></i>';
+          document.body.style.overflow = '';
+        }
+      });
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 991 && navMenu.classList.contains('active')) {
+        navMenu.classList.remove('active');
+        if (hamburger) hamburger.innerHTML = '<i class="fas fa-bars"></i>';
+        document.body.style.overflow = '';
+        dropdowns.forEach(d => d.classList.remove('active'));
+      }
+    });
+  </script>
+</body>
+</html>

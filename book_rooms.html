@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Escape Room & Axe Throwing | VenueDash</title>
+  <meta name="description" content="Dashboard for booking rooms, digital waivers, team rosters & safety demos.">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ----- GLOBAL VARIABLES (Light / Dark) ----- */
+    :root {
+      --bg-color: #f8fafc;
+      --nav-bg: rgba(255, 255, 255, 0.85);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --accent-color: #6366f1;
+      --accent-hover: #4f46e5;
+      --border-color: rgba(0, 0, 0, 0.1);
+      --dropdown-bg: rgba(255, 255, 255, 0.95);
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #0f172a;
+      --nav-bg: rgba(15, 23, 42, 0.85);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent-color: #38bdf8;
+      --accent-hover: #0ea5e9;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --dropdown-bg: rgba(15, 23, 42, 0.95);
+      --shadow-color: rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Navbar */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: var(--nav-bg);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      z-index: 1000;
+      padding: 0 1.5rem;
+      transition: var(--transition);
+    }
+
+    .nav-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 80px;
+      gap: 1rem;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-primary);
+      font-weight: 700;
+      font-size: 1.4rem;
+      white-space: nowrap;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      color: var(--accent-color);
+      filter: drop-shadow(0 0 8px var(--accent-color));
+    }
+
+    /* Desktop navigation */
+    .nav-menu {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      list-style: none;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .nav-item {
+      position: relative;
+      white-space: nowrap;
+    }
+
+    .nav-link {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 0.5rem 0.7rem;
+      border-radius: 8px;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .nav-link:hover {
+      color: var(--accent-color);
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    /* Desktop action buttons */
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      white-space: nowrap;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 1rem;
+    }
+
+    .icon-btn:hover {
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+
+    .login-btn {
+      background: var(--accent-color);
+      color: #fff !important;
+      text-decoration: none;
+      padding: 0.5rem 1.25rem;
+      border-radius: 20px;
+      font-weight: 600;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Dropdowns */
+    .dropdown-menu {
+      position: absolute;
+      top: 120%;
+      left: 0;
+      background: var(--dropdown-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      min-width: 200px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      box-shadow: 0 10px 25px var(--shadow-color);
+      padding: 0.5rem 0;
+    }
+
+    .nav-item.dropdown:hover .dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .nav-item.dropdown:hover .nav-link i {
+      transform: rotate(180deg);
+    }
+
+    .dropdown-link {
+      display: block;
+      padding: 0.75rem 1.5rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .dropdown-link:hover {
+      color: var(--text-primary);
+      background: rgba(99, 102, 241, 0.05);
+      padding-left: 2rem;
+    }
+
+    .nav-item:nth-last-child(2) .dropdown-menu {
+      right: 0;
+      left: auto;
+    }
+
+    /* Mobile elements */
+    .hamburger {
+      display: none;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .mobile-nav-action {
+      display: none;
+    }
+
+    /* Main content */
+    .main-content {
+      flex: 1;
+      margin-top: 80px;
+      padding: 6rem 2rem;
+      text-align: center;
+      background: radial-gradient(circle at center, rgba(99, 102, 241, 0.05) 0%, transparent 60%);
+    }
+
+    .main-title {
+      font-size: 3.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent-color), var(--text-primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .main-subtitle {
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      max-width: 650px;
+      margin: 1rem auto 0;
+    }
+
+    /* ========== FOOTER STYLES ========== */
+    .footer {
+      background: var(--dropdown-bg);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border-color);
+      padding: 3rem 2rem 1.5rem;
+      margin-top: auto;
+    }
+
+    .footer-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .footer-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .footer-brand {
+      flex: 1;
+      min-width: 250px;
+      max-width: 320px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-primary);
+      font-weight: 700;
+      font-size: 1.4rem;
+      white-space: nowrap;
+      margin-bottom: 1rem;
+    }
+
+    .footer-description {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      max-width: 260px;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      flex: 2;
+      justify-content: space-between;
+    }
+
+    .footer-column {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .footer-column h4 {
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .footer-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+
+    .footer-link:hover {
+      color: var(--accent-color);
+      transform: translateX(4px);
+    }
+
+    .footer-actions {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .footer-icon-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 1rem;
+    }
+
+    .footer-icon-btn:hover {
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    /* Responsive footer */
+    @media (max-width: 991px) {
+      .footer-grid {
+        flex-direction: column;
+        gap: 2rem;
+      }
+      .footer-links {
+        gap: 2.5rem;
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .footer-column {
+        flex: 1 1 200px;
+      }
+    }
+
+    @media (max-width: 800px) {
+      .main-title {
+        font-size: 2.5rem;
+      }
+      .footer-column {
+        flex: 1 1 45%;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .main-title {
+        font-size: 2rem;
+      }
+      .main-subtitle {
+        font-size: 1rem;
+      }
+      .main-content {
+        padding: 4rem 1.5rem;
+      }
+      .footer {
+        padding: 2rem 1.5rem 1rem;
+      }
+      .footer-links {
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      .footer-column, .newsletter-col {
+        max-width: 100% !important;
+        flex: 1 1 auto;
+      }
+    }
+
+    /* RESPONSIVE (tablet & mobile) for navbar */
+    @media (max-width: 1200px) {
+      .nav-link {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.4rem;
+      }
+      .nav-menu {
+        gap: 0.1rem;
+      }
+      .nav-actions {
+        gap: 0.4rem;
+      }
+      .login-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+      }
+    }
+
+    @media (max-width: 991px) {
+      .nav-actions {
+        display: none;
+      }
+      .hamburger {
+        display: block;
+        z-index: 1001;
+      }
+
+      .nav-menu {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 280px;
+        height: 100vh;
+        height: 100dvh;
+        background: var(--dropdown-bg);
+        backdrop-filter: blur(20px);
+        border-left: 1px solid var(--border-color);
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        padding: 90px 1.2rem 1.5rem;
+        transition: 0.35s cubic-bezier(0.77, 0, 0.175, 1);
+        box-shadow: -10px 0 30px var(--shadow-color);
+        overflow-y: auto;
+        gap: 0;
+        flex-wrap: nowrap;
+      }
+
+      html[dir="rtl"] .nav-menu {
+        right: auto;
+        left: -100%;
+        border-left: none;
+        border-right: 1px solid var(--border-color);
+      }
+
+      .nav-menu.active {
+        right: 0;
+      }
+      html[dir="rtl"] .nav-menu.active {
+        left: 0;
+        right: auto;
+      }
+
+      .nav-item {
+        width: 100%;
+        white-space: normal;
+      }
+
+      .nav-link {
+        width: 100%;
+        padding: 0.7rem 0;
+        font-size: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        border-radius: 0;
+      }
+
+      .dropdown-menu {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        max-height: 0;
+        overflow: hidden;
+        padding: 0;
+        transition: max-height 0.3s ease;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+      }
+
+      .nav-item.dropdown.active .dropdown-menu {
+        max-height: 200px;
+        padding: 0.3rem 0 0.3rem 1rem;
+      }
+
+      .dropdown-link {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
+
+      .mobile-nav-action {
+        display: flex;
+        width: 100%;
+        margin-top: 0.5rem;
+        border-top: 1px solid var(--border-color);
+        flex-direction: column;
+        gap: 0.4rem;
+        padding-top: 0.8rem;
+      }
+
+      .mobile-action-btn {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.5rem 0.8rem;
+        border-radius: 40px;
+        width: 100%;
+        justify-content: center;
+        gap: 10px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+      }
+
+      .mobile-action-btn:hover {
+        background: rgba(99, 102, 241, 0.1);
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+      }
+
+      .mobile-login-link {
+        background: var(--accent-color);
+        color: white !important;
+        text-decoration: none;
+        border: none;
+      }
+
+      .mobile-login-link:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+      }
+    }
+
+    /* Booking Page Specific Styles */
+    .main-content-booking {
+      width: 100%;
+      padding-top: 80px;
+    }
+    
+    section {
+      padding: 6rem 2rem;
+      position: relative;
+    }
+    
+    .section-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .text-center { text-align: center; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--accent-color), var(--text-primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .section-desc {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      max-width: 700px;
+      margin-bottom: 3rem;
+      line-height: 1.6;
+    }
+    
+    .text-center .section-desc {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    /* Buttons */
+    .btn-primary, .btn-secondary, .btn-outline {
+      display: inline-block;
+      padding: 0.8rem 1.8rem;
+      border-radius: 30px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: var(--transition);
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      font-size: 1rem;
+    }
+    
+    .btn-large {
+      padding: 1rem 2.5rem;
+      font-size: 1.2rem;
+    }
+    
+    .btn-primary {
+      background: var(--accent-color);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+    
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+    
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-3px);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      color: var(--text-primary);
+      border: 2px solid var(--accent-color);
+    }
+    
+    .btn-outline:hover {
+      background: var(--accent-color);
+      color: #fff;
+    }
+
+    /* Split Layouts General */
+    .split-layout {
+      display: flex;
+      align-items: center;
+      gap: 4rem;
+    }
+    
+    .split-layout.reverse {
+      flex-direction: row-reverse;
+    }
+    
+    .split-text { flex: 1; text-align: left; }
+    .split-image {
+      flex: 1;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px var(--shadow-color);
+    }
+    
+    .split-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+    
+    .split-image:hover img {
+      transform: scale(1.05);
+    }
+
+    /* 1. Booking Hero */
+    .booking-hero {
+      height: calc(100vh - 80px);
+      min-height: 500px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-size: cover;
+      background-position: center;
+      margin-top: -80px;
+      padding-top: 80px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .hero-main-title {
+      font-size: 4rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 1rem;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+    }
+    
+    .hero-main-desc {
+      font-size: 1.3rem;
+      color: #e2e8f0;
+      max-width: 600px;
+      margin: 0 auto 2.5rem;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+    }
+    
+    .badge-accent {
+      display: inline-block;
+      background: var(--accent-color);
+      color: #fff;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+
+    /* 2. Guide Section */
+    .guide-section { background: var(--bg-color); }
+    
+    .steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    
+    .step-item {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+    
+    .step-num {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent-color);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 800;
+      flex-shrink: 0;
+      box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+    }
+    
+    .step-item h4 {
+      font-size: 1.2rem;
+      margin-bottom: 0.3rem;
+    }
+    
+    .step-item p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    /* 3. VIP Section */
+    .vip-section {
+      background: radial-gradient(circle at center, rgba(56, 189, 248, 0.05) 0%, transparent 70%);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .vip-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+    
+    .vip-card {
+      background: var(--dropdown-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 3rem 2rem;
+      transition: var(--transition);
+    }
+    
+    .vip-card:hover {
+      transform: translateY(-5px);
+      border-color: #38bdf8;
+      box-shadow: 0 10px 30px rgba(56, 189, 248, 0.1);
+    }
+    
+    .vip-card i {
+      font-size: 3rem;
+      color: #38bdf8;
+      margin-bottom: 1.5rem;
+    }
+    
+    .vip-card h4 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .vip-card p {
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    /* 4. Calendar Mockup */
+    .availability-section { background: var(--bg-color); }
+    
+    .hot-deal {
+      color: #ef4444;
+      font-weight: 600;
+    }
+    
+    .calendar-mockup {
+      max-width: 800px;
+      margin: 3rem auto 0;
+      background: var(--dropdown-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 15px 40px var(--shadow-color);
+    }
+    
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(99, 102, 241, 0.05);
+    }
+    
+    .calendar-header h3 { font-size: 1.2rem; }
+    
+    .cal-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+    
+    .cal-btn:hover { background: var(--accent-color); color: #fff; border-color: var(--accent-color); }
+    
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 1px;
+      background: var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .cal-day-name {
+      background: var(--dropdown-bg);
+      padding: 1rem 0;
+      text-align: center;
+      font-weight: 600;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    
+    .cal-day {
+      background: var(--dropdown-bg);
+      padding: 1.5rem 0;
+      text-align: center;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .cal-day:not(.empty):hover {
+      background: rgba(99, 102, 241, 0.1);
+    }
+    
+    .cal-day.empty { cursor: default; }
+    
+    .cal-day.hot {
+      color: #ef4444;
+      font-weight: 700;
+    }
+    
+    .cal-day.selected {
+      background: var(--accent-color);
+      color: #fff;
+    }
+    
+    .time-slots {
+      padding: 2rem;
+    }
+    
+    .time-slots h4 {
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    
+    .slots-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+    
+    .slot-btn {
+      background: transparent;
+      border: 1px solid var(--accent-color);
+      color: var(--text-primary);
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .slot-btn:hover:not(.booked) {
+      background: var(--accent-color);
+      color: #fff;
+    }
+    
+    .slot-btn.booked {
+      border-color: var(--border-color);
+      color: var(--text-secondary);
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    /* 5. Add-Ons */
+    .addons-section {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), transparent);
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .addons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+    
+    .addon-card {
+      background: var(--dropdown-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      position: relative;
+      transition: var(--transition);
+    }
+    
+    .addon-card:hover {
+      border-color: var(--accent-color);
+      transform: translateY(-5px);
+    }
+    
+    .addon-icon {
+      width: 60px;
+      height: 60px;
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--accent-color);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin: 0 auto 1.5rem;
+    }
+    
+    .addon-price {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: var(--accent-color);
+      color: #fff;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    /* 6. Waiver Section */
+    .waiver-section { background: var(--bg-color); }
+    
+    .fastpass-list {
+      list-style: none;
+      margin-top: 1.5rem;
+    }
+    
+    .fastpass-list li {
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+    
+    .fastpass-list i { color: #10b981; }
+    
+    .waiver-mockup {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 300px;
+    }
+    
+    .waiver-inner {
+      text-align: center;
+      padding: 2rem;
+    }
+    
+    .glowing-icon {
+      font-size: 3.5rem;
+      color: #10b981;
+      margin-bottom: 1rem;
+      filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.5));
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      margin: 1.5rem 0 1rem;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981;
+    }
+
+    /* 7. Corporate Section */
+    .corporate-section {
+      background: var(--bg-color);
+      padding: 2rem 2rem 6rem;
+    }
+    
+    .corp-banner {
+      background: linear-gradient(135deg, var(--accent-color), #312e81);
+      border-radius: 20px;
+      padding: 3rem;
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+      color: #fff;
+    }
+    
+    .corp-icon {
+      font-size: 5rem;
+      color: rgba(255,255,255,0.8);
+    }
+    
+    .corp-text h2 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .corp-text p {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.9);
+      line-height: 1.5;
+    }
+
+    /* 8. Trust Section */
+    .trust-section {
+      background: var(--dropdown-bg);
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .shield-icon {
+      font-size: 4rem;
+      color: var(--accent-color);
+      margin-bottom: 1.5rem;
+    }
+
+    /* Room Gallery Section */
+    .gallery-section {
+      background: var(--bg-color);
+      border-top: 1px solid var(--border-color);
+    }
+    
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    
+    .gallery-card {
+      background: var(--dropdown-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: var(--transition);
+      box-shadow: 0 10px 30px var(--shadow-color);
+    }
+    
+    .gallery-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--accent-color);
+    }
+    
+    .gallery-image {
+      width: 100%;
+      height: 200px !important;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+    
+    .gallery-card:hover .gallery-image {
+      transform: scale(1.05);
+    }
+    
+    .gallery-content {
+      padding: 1.5rem;
+      text-align: left;
+    }
+    
+    .gallery-content h4 {
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+    
+    .gallery-content p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+      .split-layout, .split-layout.reverse { flex-direction: column; gap: 2.5rem; }
+      .hero-main-title { color: #fff; font-size: 3rem; }
+      .corp-banner { flex-direction: column; text-align: center; gap: 1.5rem; }
+    }
+    
+    @media (max-width: 680px) {
+      section { padding: 4rem 1.5rem; }
+      .hero-main-title { color: #fff; font-size: 2.5rem; }
+      .calendar-grid { font-size: 0.8rem; }
+      .cal-day { padding: 1rem 0; }
+    }
+  </style>
+  <link rel="stylesheet" href="mobile.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <script>
+    (function() {
+      const isDark = localStorage.getItem('venue_theme_dark');
+      const htmlEl = document.documentElement;
+      let currentTheme = htmlEl.getAttribute('data-theme');
+      const isAdmin = currentTheme && currentTheme.includes('admin');
+      
+      if (isDark === 'true') {
+        htmlEl.setAttribute('data-theme', isAdmin ? 'admin-dark' : 'dark');
+      } else if (isDark === 'false') {
+        if (isAdmin) {
+          htmlEl.setAttribute('data-theme', 'admin-light');
+        } else if (currentTheme === 'dark' || currentTheme === 'light') {
+          htmlEl.setAttribute('data-theme', 'light');
+        } else {
+          htmlEl.removeAttribute('data-theme');
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        document.body.addEventListener('click', (e) => {
+          const toggleBtn = e.target.closest('#theme-toggle, #mobile-theme-toggle');
+          if (toggleBtn) {
+            setTimeout(() => {
+              const theme = document.documentElement.getAttribute('data-theme');
+              const darkActive = theme === 'dark' || theme === 'admin-dark';
+              localStorage.setItem('venue_theme_dark', darkActive);
+            }, 50);
+          }
+        });
+
+        setTimeout(() => {
+          const theme = document.documentElement.getAttribute('data-theme');
+          const darkActive = theme === 'dark' || theme === 'admin-dark';
+          
+          const themeIcons = document.querySelectorAll('#theme-icon, #theme-toggle i, #mobile-theme-icon');
+          themeIcons.forEach(icon => {
+            if (darkActive) {
+              icon.classList.remove('fa-moon');
+              icon.classList.add('fa-sun');
+            } else {
+              icon.classList.remove('fa-sun');
+              icon.classList.add('fa-moon');
+            }
+          });
+        }, 100);
+      });
+    })();
+  </script>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo-container">
+        <i class="fas fa-cube" style="color: var(--accent-color); font-size: 1.8rem; filter: drop-shadow(0 0 8px var(--accent-color));"></i>
+        <span style="font-weight: 800; font-size: 1.5rem; background: linear-gradient(90deg, var(--accent-color), #9d00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase;">NEXUS</span>
+      </a>
+
+      <ul class="nav-menu" id="nav-menu">
+        <li class="nav-item dropdown">
+          <a href="index.html" class="nav-link" id="home-link">Home <i class="fas fa-chevron-down"></i></a>
+          <div class="dropdown-menu">
+            <a href="index.html" class="dropdown-link">Home 1</a>
+            <a href="./home2.html" class="dropdown-link">Home 2</a>
+          </div>
+        </li>
+        <li class="nav-item"><a href="./book_rooms.html" class="nav-link">Book Rooms/Lanes</a></li>
+        <li class="nav-item"><a href="./digital_waivers.html" class="nav-link">Digital Waivers</a></li>
+        <li class="nav-item"><a href="./team_rosters.html" class="nav-link">Team Rosters</a></li>
+        <li class="nav-item"><a href="./packages.html" class="nav-link">Packages</a></li>
+        <li class="nav-item"><a href="./Safety Demos.html" class="nav-link">Safety Demos</a></li>
+        <li class="nav-item"><a href="./Contact.html" class="nav-link">Contact</a></li>
+        <li class="nav-item dropdown">
+          <a href="javascript:void(0)" class="nav-link" id="dashboard-link">Dashboard <i class="fas fa-chevron-down"></i></a>
+          <div class="dropdown-menu">
+            <a href="./user_dashboard.html" class="dropdown-link">Users</a>
+            <a href="./admin_dashboard.html" class="dropdown-link">Admin</a>
+          </div>
+        </li>
+        <li class="mobile-nav-action">
+          <button id="mobile-theme-toggle" class="mobile-action-btn">
+            <i class="fas fa-sun" id="mobile-theme-icon"></i> Theme
+          </button>
+          <button id="mobile-rtl-toggle" class="mobile-action-btn">
+            <i class="fas fa-arrows-left-right"></i> RTL Layout
+          </button>
+          <a href="login.html" class="mobile-action-btn mobile-login-link" id="mobile-login-btn">
+            <i class="fas fa-user-circle"></i> Login
+          </a>
+        </li>
+      </ul>
+
+      <div class="nav-actions">
+        <button id="theme-toggle" class="icon-btn" title="Dark/Light Mode">
+          <i class="fas fa-sun" id="theme-icon"></i>
+        </button>
+        <button id="rtl-toggle" class="icon-btn" title="Toggle RTL Layout">
+          <i class="fas fa-arrows-left-right"></i>
+        </button>
+        <a href="login.html" class="login-btn"><i class="fas fa-user-circle"></i> Login</a>
+      </div>
+
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+    <style>
+      .nav-link.active, .dropdown-link.active {
+        color: var(--accent-color) !important;
+        font-weight: 700;
+        background: rgba(99, 102, 241, 0.08);
+        border-radius: 4px;
+      }
+    </style>
+    <script>
+      (function() {
+        let currentPath = window.location.pathname.split('/').pop() || 'index.html';
+        currentPath = decodeURIComponent(currentPath);
+        const navLinks = document.querySelectorAll('.navbar .nav-link, .navbar .dropdown-link');
+        navLinks.forEach(link => {
+          let linkHref = link.getAttribute('href');
+          if (!linkHref || linkHref.startsWith('javascript:')) return;
+          let linkPath = linkHref.split('/').pop();
+          linkPath = decodeURIComponent(linkPath);
+          if (linkPath && currentPath.toLowerCase() === linkPath.toLowerCase()) {
+            link.classList.add('active');
+            const dropdown = link.closest('.dropdown-menu');
+            if (dropdown) {
+               const parentLink = dropdown.previousElementSibling;
+               if (parentLink && parentLink.classList.contains('nav-link')) {
+                 parentLink.classList.add('active');
+               }
+            }
+          }
+        });
+      })();
+    </script>
+  </nav>
+
+  <main class="main-content-booking">
+    <!-- 1. Reservation Hero Section -->
+    <section class="booking-hero" style="background-image: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.9)), url('images/book_hero.png');">
+      <div class="section-container text-center">
+        <div class="badge-accent">Book Your Adventure</div>
+        <h1 class="hero-main-title">Secure Your Spot</h1>
+        <p class="hero-main-desc">Whether you're breaking out of a high-tech vault or hitting bullseyes with friends, lock in your date and time below.</p>
+        <div class="hero-actions">
+          <a href="#availability" class="btn-primary btn-large">Check Availability</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. How to Book (1-2-3 Guide) -->
+    <section class="guide-section">
+      <div class="section-container split-layout">
+        <div class="split-image">
+          <img src="images/book_guide.png" alt="Booking Guide">
+        </div>
+        <div class="split-text">
+          <h2 class="section-title">As Easy As 1-2-3</h2>
+          <p class="section-desc">We've streamlined our booking process so you can spend less time planning and more time playing.</p>
+          <div class="steps-list">
+            <div class="step-item">
+              <div class="step-num">1</div>
+              <div>
+                <h4>Choose Your Experience</h4>
+                <p>Select an escape room scenario or an axe throwing lane.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">2</div>
+              <div>
+                <h4>Pick a Date & Time</h4>
+                <p>Use our live calendar to find the perfect slot for your group.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">3</div>
+              <div>
+                <h4>Bring Your Crew</h4>
+                <p>Sign waivers online and show up 15 minutes early to dominate.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. VIP & Private Buyouts -->
+    <section class="vip-section">
+      <div class="section-container text-center">
+        <h2 class="section-title">VIP & Full Buyouts</h2>
+        <p class="section-desc mx-auto">Planning a massive event? Rent the entire venue or our exclusive VIP lounges.</p>
+        <div class="vip-grid">
+          <div class="vip-card">
+            <i class="fas fa-glass-cheers"></i>
+            <h4>The VIP Lounge</h4>
+            <p>Private bar access, leather seating, and two dedicated axe throwing lanes just for your group.</p>
+            <a href="#" class="btn-outline">Inquire Now</a>
+          </div>
+          <div class="vip-card">
+            <i class="fas fa-building"></i>
+            <h4>Full Venue Buyout</h4>
+            <p>Have the entire place to yourself. Up to 150 guests across all rooms and lanes. Perfect for holiday parties.</p>
+            <a href="#" class="btn-outline">Get a Quote</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- 4. Live Availability & Deals -->
+    <section id="availability" class="availability-section">
+      <div class="section-container">
+        <div class="text-center">
+          <h2 class="section-title">Live Availability</h2>
+          <p class="section-desc mx-auto">Select a date to view open slots. <span class="hot-deal">🔥 Look for the flame icon for last-minute deals!</span></p>
+        </div>
+        
+        <div class="calendar-mockup">
+          <div class="calendar-header">
+            <button class="cal-btn"><i class="fas fa-chevron-left"></i></button>
+            <h3>October 2026</h3>
+            <button class="cal-btn"><i class="fas fa-chevron-right"></i></button>
+          </div>
+          <div class="calendar-grid">
+            <div class="cal-day-name">Sun</div><div class="cal-day-name">Mon</div><div class="cal-day-name">Tue</div><div class="cal-day-name">Wed</div><div class="cal-day-name">Thu</div><div class="cal-day-name">Fri</div><div class="cal-day-name">Sat</div>
+            <!-- Dummy Days -->
+            <div class="cal-day empty"></div><div class="cal-day empty"></div>
+            <div class="cal-day">1</div><div class="cal-day">2</div><div class="cal-day">3</div><div class="cal-day hot">4 🔥</div><div class="cal-day selected">5</div>
+            <div class="cal-day">6</div><div class="cal-day">7</div><div class="cal-day">8</div><div class="cal-day">9</div><div class="cal-day">10</div><div class="cal-day">11</div><div class="cal-day">12</div>
+          </div>
+          <div class="time-slots">
+            <h4>Available Times for Oct 5</h4>
+            <div class="slots-container">
+              <button class="slot-btn">4:00 PM</button>
+              <button class="slot-btn booked" disabled>5:30 PM (Full)</button>
+              <button class="slot-btn">7:00 PM</button>
+              <button class="slot-btn">8:30 PM</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Level Up Your Booking (Add-Ons) -->
+    <section class="addons-section">
+      <div class="section-container text-center">
+        <h2 class="section-title">Level Up Your Booking</h2>
+        <p class="section-desc mx-auto">Add these exclusive extras during checkout to make your experience legendary.</p>
+        
+        <div class="addons-grid">
+          <div class="addon-card">
+            <div class="addon-icon"><i class="fas fa-video"></i></div>
+            <h4>Go-Pro Recording</h4>
+            <p>We'll record your entire escape room run so you can re-watch the chaos.</p>
+            <div class="addon-price">+$25</div>
+          </div>
+          <div class="addon-card">
+            <div class="addon-icon"><i class="fas fa-birthday-cake"></i></div>
+            <h4>Themed Birthday Cake</h4>
+            <p>A custom-made cake waiting in your room when you escape (or fail).</p>
+            <div class="addon-price">+$40</div>
+          </div>
+          <div class="addon-card">
+            <div class="addon-icon"><i class="fas fa-trophy"></i></div>
+            <h4>Custom Engraved Axe</h4>
+            <p>Take home a real throwing axe engraved with your name or team.</p>
+            <div class="addon-price">+$65</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. The Waiver Fast-Pass -->
+    <section class="waiver-section">
+      <div class="section-container split-layout reverse">
+        <div class="split-text">
+          <h2 class="section-title">The Digital Fast-Pass</h2>
+          <p class="section-desc">Nobody likes waiting in line to sign paperwork. When you book online, you'll receive a custom link to send to your group.</p>
+          <ul class="fastpass-list">
+            <li><i class="fas fa-signature"></i> Sign on any mobile device</li>
+            <li><i class="fas fa-forward"></i> Skip the lobby queue entirely</li>
+            <li><i class="fas fa-stopwatch"></i> Get straight to the action</li>
+          </ul>
+        </div>
+        <div class="split-image waiver-mockup">
+          <div class="waiver-inner">
+            <i class="fas fa-file-signature glowing-icon"></i>
+            <h3>Digital Waiver Status</h3>
+            <div class="progress-bar"><div class="progress-fill" style="width: 100%;"></div></div>
+            <p>100% Complete. You are cleared for entry.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Corporate Invoicing -->
+    <section class="corporate-section">
+      <div class="section-container">
+        <div class="corp-banner">
+          <div class="corp-icon"><i class="fas fa-briefcase"></i></div>
+          <div class="corp-text">
+            <h2>Corporate Invoicing Available</h2>
+            <p>Booking for a large company event? We know corporate cards can be tricky. We offer NET-30 invoicing for verified businesses. Select "Pay by Invoice" at checkout.</p>
+          </div>
+          <a href="#" class="btn-secondary">Learn More</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. Trust & Cancellation Policy -->
+    <section class="trust-section text-center">
+      <div class="section-container">
+        <i class="fas fa-shield-alt shield-icon"></i>
+        <h2 class="section-title">Book With Confidence</h2>
+        <p class="section-desc mx-auto">Life happens. That's why we offer a <strong>No-Penalty Rescheduling Policy</strong>. If you need to change your date or time, just let us know 24 hours in advance, and we'll move your reservation for free. No questions asked.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========== NEW FOOTER SECTION ========== -->
+  <footer id="contact" class="footer">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="footer-logo">
+        <i class="fas fa-cube" style="color: var(--accent-color); font-size: 1.8rem; filter: drop-shadow(0 0 8px var(--accent-color));"></i>
+        <span style="font-weight: 800; font-size: 1.5rem; background: linear-gradient(90deg, var(--accent-color), #9d00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase;">NEXUS</span>
+          </a>
+          <p class="footer-description">Escape Rooms & Axe Throwing — Book rooms, sign waivers, manage teams all in one dashboard.</p>
+          <div class="footer-actions">
+            <a href="javascript:void(0)" class="footer-icon-btn" title="Facebook" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="javascript:void(0)" class="footer-icon-btn" title="Twitter" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="javascript:void(0)" class="footer-icon-btn" title="Instagram" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="javascript:void(0)" class="footer-icon-btn" title="LinkedIn" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-linkedin-in"></i>
+            </a>
+            <a href="javascript:void(0)" class="footer-icon-btn" title="YouTube" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-youtube"></i>
+            </a>
+          </div>
+        </div>
+        <div class="footer-links">
+          <div class="footer-column">
+            <h4>Explore</h4>
+            <a href="index.html" class="footer-link">Home</a>
+            <a href="#rooms" class="footer-link">Book Rooms/Lanes</a>
+            <a href="user_dashboard.html" class="footer-link">Digital Waivers</a>
+            <a href="user_dashboard.html" class="footer-link">Team Rosters</a>
+          </div>
+          <div class="footer-column">
+            <h4>Services</h4>
+            <a href="#packages" class="footer-link">Packages</a>
+            <a href="#safety-demos" class="footer-link">Safety Demos</a>
+            <a href="#contact" class="footer-link">Contact</a>
+            <a href="user_dashboard.html" class="footer-link">Dashboard</a>
+          </div>
+          <div class="footer-column">
+            <h4>Contact Us</h4>
+            <a href="javascript:void(0)" class="footer-link" style="cursor: default;"><i class="fas fa-map-marker-alt" style="margin-right: 8px;"></i> 123 Escape Ave, NY 10001</a>
+            <a href="javascript:void(0)" class="footer-link" style="cursor: default;"><i class="fas fa-phone-alt" style="margin-right: 8px;"></i> +1 (555) 123-4567</a>
+            <a href="javascript:void(0)" class="footer-link" style="cursor: default;"><i class="fas fa-envelope" style="margin-right: 8px;"></i> hello@venuedash.com</a>
+          </div>
+          <div class="footer-column newsletter-col" style="flex: 1.5; min-width: 260px; max-width: 350px;">
+            <h4>Newsletter</h4>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.8rem; line-height: 1.4;">Subscribe to get the latest escape room updates and exclusive offers directly in your inbox.</p>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="email" placeholder="Email address" style="padding: 0.5rem 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: transparent; color: var(--text-primary); outline: none; width: 100%; font-family: inherit; font-size: 0.9rem;">
+              <button style="background: var(--accent-color); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; transition: var(--transition); font-weight: 600; font-family: inherit;">Subscribe</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Escape Room & Axe Throwing Venue. All rights reserved. | VenueDash — Next‑gen booking experience</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const htmlEl = document.documentElement;
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.getElementById('nav-menu');
+    const dropdowns = document.querySelectorAll('.nav-item.dropdown');
+
+    // Desktop controls
+    const themeToggleDesktop = document.getElementById('theme-toggle');
+    const themeIconDesktop = document.getElementById('theme-icon');
+    const rtlToggleDesktop = document.getElementById('rtl-toggle');
+    // Mobile controls
+    const mobileThemeBtn = document.getElementById('mobile-theme-toggle');
+    const mobileThemeIcon = document.getElementById('mobile-theme-icon');
+    const mobileRtlBtn = document.getElementById('mobile-rtl-toggle');
+    // Footer controls
+    // Removed
+
+    function updateThemeIcons(isDark) {
+      const iconClass = isDark ? 'fas fa-sun' : 'fas fa-moon';
+      if (themeIconDesktop) themeIconDesktop.className = iconClass;
+      if (mobileThemeIcon) mobileThemeIcon.className = iconClass;
+    }
+
+    const initialDark = htmlEl.getAttribute('data-theme') === 'dark';
+    updateThemeIcons(initialDark);
+
+    function toggleTheme() {
+      if (htmlEl.getAttribute('data-theme') === 'dark') {
+        htmlEl.removeAttribute('data-theme');
+        updateThemeIcons(false);
+      } else {
+        htmlEl.setAttribute('data-theme', 'dark');
+        updateThemeIcons(true);
+      }
+    }
+
+    function toggleRTL() {
+      if (htmlEl.getAttribute('dir') === 'rtl') {
+        htmlEl.removeAttribute('dir');
+      } else {
+        htmlEl.setAttribute('dir', 'rtl');
+      }
+    }
+
+    if (themeToggleDesktop) themeToggleDesktop.addEventListener('click', toggleTheme);
+    if (mobileThemeBtn) mobileThemeBtn.addEventListener('click', toggleTheme);
+    if (rtlToggleDesktop) rtlToggleDesktop.addEventListener('click', toggleRTL);
+    if (mobileRtlBtn) mobileRtlBtn.addEventListener('click', toggleRTL);
+
+    // Stable Home/Dashboard clicks (no movement)
+    const homeLink = document.getElementById('home-link');
+    const dashboardLink = document.getElementById('dashboard-link');
+    if (homeLink) {
+      homeLink.addEventListener('click', (e) => {
+        e.preventDefault();
+      });
+    }
+    if (dashboardLink) {
+      dashboardLink.addEventListener('click', (e) => {
+        e.preventDefault();
+      });
+    }
+
+    // Prevent all placeholder links from causing any scroll or navigation
+    document.querySelectorAll('a[href="javascript:void(0)"]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    });
+
+    // Mobile menu toggle
+    if (hamburger) {
+      hamburger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navMenu.classList.toggle('active');
+        hamburger.innerHTML = navMenu.classList.contains('active') ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : '';
+      });
+    }
+
+    // Mobile dropdown toggles
+    dropdowns.forEach(drop => {
+      const link = drop.querySelector('.nav-link');
+      if (link) {
+        link.addEventListener('click', (e) => {
+          if (window.innerWidth <= 991) {
+            e.preventDefault();
+            dropdowns.forEach(other => {
+              if (other !== drop && other.classList.contains('active')) other.classList.remove('active');
+            });
+            drop.classList.toggle('active');
+          }
+        });
+      }
+    });
+
+    // Close mobile menu after clicking any normal item
+    const closeTriggers = document.querySelectorAll('.nav-link:not(#home-link):not(#dashboard-link), .dropdown-link, #mobile-login-btn');
+    closeTriggers.forEach(link => {
+      link.addEventListener('click', (e) => {
+        if (e.target.closest('#mobile-theme-toggle') || e.target.closest('#mobile-rtl-toggle')) return;
+        if (window.innerWidth <= 991 && navMenu.classList.contains('active')) {
+          navMenu.classList.remove('active');
+          if (hamburger) hamburger.innerHTML = '<i class="fas fa-bars"></i>';
+          document.body.style.overflow = '';
+        }
+      });
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 991 && navMenu.classList.contains('active')) {
+        navMenu.classList.remove('active');
+        if (hamburger) hamburger.innerHTML = '<i class="fas fa-bars"></i>';
+        document.body.style.overflow = '';
+        dropdowns.forEach(d => d.classList.remove('active'));
+      }
+    });
+  </script>
+</body>
+</html>

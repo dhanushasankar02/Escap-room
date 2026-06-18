@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Nexus Escape & Axe | User Dashboard</title>
+  <meta name="description" content="Manage your escape room and axe throwing reservations.">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ----- GLOBAL VARIABLES (Neon / Dark Theme) ----- */
+    :root {
+      --bg-color: #080b12;
+      --surface-1: #111622;
+      --surface-2: #1a2235;
+      
+      --accent-cyan: #00f0ff;
+      --accent-pink: #ff0055;
+      --accent-purple: #9d00ff;
+      --success: #00ff88;
+      --warning: #ffaa00;
+      
+      --text-main: #f8fafc;
+      --text-muted: #8b9bb4;
+      
+      --glass-bg: rgba(17, 22, 34, 0.65);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      
+      --font-main: 'Outfit', sans-serif;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="light"] {
+      --bg-color: #f8fafc;
+      --surface-1: #ffffff;
+      --surface-2: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --glass-bg: rgba(255, 255, 255, 0.85);
+      --glass-border: rgba(0, 0, 0, 0.1);
+    }
+
+    /* RTL Support */
+    [dir="rtl"] .sidebar { left: auto; right: 0; border-right: none; border-left: 1px solid var(--glass-border); }
+    [dir="rtl"] .main-wrapper { margin-left: 0; margin-right: 280px; }
+    [dir="rtl"] .nav-link { padding: 0.8rem 1rem 0.8rem 0; }
+    [dir="rtl"] .nav-link.active { border-left: none; border-right: 3px solid var(--accent-cyan); background: linear-gradient(-90deg, rgba(0, 240, 255, 0.1), transparent); }
+    @media (max-width: 992px) {
+      [dir="rtl"] .sidebar { left: 0; right: auto; transform: translateX(-100%); border-left: none; border-right: 1px solid var(--glass-border); }
+      [dir="rtl"] .sidebar.open { transform: translateX(0); }
+      [dir="rtl"] .main-wrapper { margin-right: 0; }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-main);
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 0% 0%, rgba(0, 240, 255, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 100% 100%, rgba(255, 0, 85, 0.05) 0%, transparent 40%);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-color); }
+    ::-webkit-scrollbar-thumb { background: var(--surface-2); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent-purple); }
+
+    /* ========== SIDEBAR ========== */
+    .sidebar {
+      width: 280px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--glass-border);
+      z-index: 100;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+    }
+
+    .brand {
+      padding: 2rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      border-bottom: 1px solid var(--glass-border);
+      position: sticky;
+      top: 0;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      z-index: 10;
+    }
+
+    .brand-icon {
+      font-size: 2rem;
+      color: var(--accent-cyan);
+      filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.5));
+    }
+
+    .brand-name {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+    }
+
+    .nav-section { padding: 1.5rem 0 0; }
+    
+    .nav-title {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      padding: 0 1.5rem 0.8rem;
+      font-weight: 700;
+    }
+
+    .nav-list { list-style: none; padding-bottom: 1rem; }
+    
+    .nav-item { margin: 0.3rem 1rem; }
+    
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0.8rem 1rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      border-radius: 10px;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-link i { width: 22px; text-align: center; font-size: 1.1rem; }
+
+    .nav-link:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+      transform: translateX(5px);
+    }
+
+    .nav-link.active {
+      background: linear-gradient(90deg, rgba(0, 240, 255, 0.1), transparent);
+      color: var(--accent-cyan);
+      font-weight: 600;
+      border-left: 3px solid var(--accent-cyan);
+    }
+
+    /* ========== MAIN CONTENT ========== */
+    .main-wrapper {
+      flex: 1;
+      margin-left: 280px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Top Bar */
+    .topbar {
+      height: 80px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .mobile-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text-main);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .user-actions {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .action-btn {
+      background: var(--surface-1);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .action-btn:hover {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+    }
+
+    .badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      background: var(--accent-pink);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 12px;
+      transition: var(--transition);
+    }
+
+    .user-profile:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #000;
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+    }
+
+    .user-info h4 { font-size: 1rem; margin-bottom: 2px; }
+    .user-info p { font-size: 0.8rem; color: var(--accent-cyan); font-weight: 600; }
+
+    /* Content Area */
+    .content-area {
+      padding: 3rem;
+      flex: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .section-panel {
+      display: none;
+      animation: fadeUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .section-panel.active { display: block; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-header { margin-bottom: 3rem; }
+    
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(90deg, var(--text-main), var(--text-muted));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .section-subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    /* Common Components */
+    .card {
+      background: var(--surface-1);
+      border-radius: 16px;
+      border: 1px solid var(--glass-border);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    
+    .card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+
+    /* Forms */
+    .form-group { margin-bottom: 1.5rem; }
+    .form-label {
+      display: block;
+      margin-bottom: 0.8rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+    .form-control {
+      width: 100%;
+      padding: 1rem 1.2rem;
+      border-radius: 10px;
+      border: 1px solid var(--glass-border);
+      background: var(--surface-2);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+    .form-control::placeholder {
+      color: var(--text-muted);
+      opacity: 0.8;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.15);
+      background: var(--surface-1);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 1rem 2rem;
+      border-radius: 10px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-cyan), #0088ff);
+      color: #000;
+      box-shadow: 0 4px 15px rgba(0, 240, 255, 0.3);
+    }
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 240, 255, 0.5);
+    }
+    
+    .btn-pink {
+      background: linear-gradient(135deg, var(--accent-pink), #ff00aa);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(255, 0, 85, 0.3);
+    }
+    .btn-pink:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(255, 0, 85, 0.5);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+    }
+    .btn-outline:hover {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+
+    /* Custom Cards */
+    .feature-card {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      border-top: 3px solid transparent;
+    }
+    .feature-card:hover { border-top-color: var(--accent-cyan); }
+    
+    .feature-icon {
+      width: 70px;
+      height: 70px;
+      border-radius: 16px;
+      background: rgba(0, 240, 255, 0.1);
+      color: var(--accent-cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    .feature-card.pink .feature-icon { background: rgba(255, 0, 85, 0.1); color: var(--accent-pink); }
+    .feature-card.pink:hover { border-top-color: var(--accent-pink); }
+    
+    .feature-card.purple .feature-icon { background: rgba(157, 0, 255, 0.1); color: var(--accent-purple); }
+    .feature-card.purple:hover { border-top-color: var(--accent-purple); }
+
+    .feature-card h3 { font-size: 1.5rem; margin-bottom: 1rem; }
+    .feature-card p { color: var(--text-muted); line-height: 1.6; margin-bottom: 2rem; flex-grow: 1; }
+
+    /* Upcoming Reservations List */
+    .res-item {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      padding: 1.5rem;
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      background: var(--surface-2);
+      transition: var(--transition);
+    }
+    .res-item:hover { border-color: var(--accent-cyan); background: var(--surface-2); }
+    
+    .res-date {
+      background: rgba(0, 240, 255, 0.05);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      border-radius: 12px;
+      padding: 1.2rem;
+      text-align: center;
+      min-width: 100px;
+    }
+    .res-date.past { background: rgba(255, 255, 255, 0.05); border-color: var(--glass-border); }
+    
+    .res-date h3 { font-size: 2.2rem; line-height: 1; color: var(--accent-cyan); }
+    .res-date.past h3 { color: var(--text-muted); }
+    .res-date span { font-size: 0.9rem; text-transform: uppercase; font-weight: 600; color: var(--text-muted); }
+    
+    .res-info { flex: 1; }
+    .res-info h4 { font-size: 1.4rem; margin-bottom: 0.5rem; }
+    .res-info p { color: var(--text-muted); display: flex; align-items: center; gap: 8px; margin-bottom: 0.3rem; }
+    
+    /* Tickets */
+    .ticket-card {
+      text-align: center;
+      background: linear-gradient(180deg, var(--surface-1), var(--surface-2));
+      border: 1px dashed var(--glass-border);
+    }
+    .qr-box {
+      width: 220px;
+      height: 220px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 12px;
+      margin: 1.5rem auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .qr-box img { width: 100%; height: 100%; object-fit: contain; }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 0.4rem 1.2rem;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .status-active { background: rgba(0, 255, 136, 0.1); color: var(--success); border: 1px solid rgba(0, 255, 136, 0.3); }
+    .status-used { background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid var(--glass-border); }
+    .status-pending { background: rgba(255, 170, 0, 0.1); color: var(--warning); border: 1px solid rgba(255, 170, 0, 0.3); }
+
+    /* Tables */
+    .table-container { overflow-x: auto; }
+    .data-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+    .data-table th {
+      text-align: left;
+      padding: 1.5rem 1rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      border-bottom: 1px solid var(--glass-border);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .data-table td {
+      padding: 1.5rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      color: var(--text-main);
+      font-weight: 500;
+    }
+    .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .sidebar { left: auto; right: 0; transform: translateX(100%); border-right: none; border-left: 1px solid var(--glass-border); }
+      .sidebar.open { transform: translateX(0); }
+      .main-wrapper { margin-left: 0; }
+      .mobile-toggle { display: block; }
+      .content-area { padding: 2rem 1.5rem; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .res-item { flex-direction: column; text-align: center; gap: 1rem; }
+      .res-item .btn { width: 100%; }
+      .topbar .action-btn { width: 45px !important; margin: 0 !important; }
+      .topbar .user-actions { gap: 0.5rem; }
+      .topbar { padding: 0 1rem; }
+      .navbar-logo span { display: none; } /* Hide text on very small screens to fit icons */
+    }
+    .no-transition-global * { transition: none !important; }
+  </style>
+  <link rel="stylesheet" href="mobile.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <script>
+    (function() {
+      const isDark = localStorage.getItem('venue_theme_dark');
+      const htmlEl = document.documentElement;
+      let currentTheme = htmlEl.getAttribute('data-theme');
+      const isAdmin = currentTheme && currentTheme.includes('admin');
+      
+      if (isDark === 'true') {
+        htmlEl.setAttribute('data-theme', isAdmin ? 'admin-dark' : 'dark');
+      } else if (isDark === 'false') {
+        if (isAdmin) {
+          htmlEl.setAttribute('data-theme', 'admin-light');
+        } else if (currentTheme === 'dark' || currentTheme === 'light') {
+          htmlEl.setAttribute('data-theme', 'light');
+        } else {
+          htmlEl.removeAttribute('data-theme');
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        document.body.addEventListener('click', (e) => {
+          const toggleBtn = e.target.closest('#theme-toggle, #mobile-theme-toggle');
+          if (toggleBtn) {
+            setTimeout(() => {
+              const theme = document.documentElement.getAttribute('data-theme');
+              const darkActive = theme === 'dark' || theme === 'admin-dark';
+              localStorage.setItem('venue_theme_dark', darkActive);
+            }, 50);
+          }
+        });
+
+        setTimeout(() => {
+          const theme = document.documentElement.getAttribute('data-theme');
+          const darkActive = theme === 'dark' || theme === 'admin-dark';
+          
+          const themeIcons = document.querySelectorAll('#theme-icon, #theme-toggle i, #mobile-theme-icon');
+          themeIcons.forEach(icon => {
+            if (darkActive) {
+              icon.classList.remove('fa-moon');
+              icon.classList.add('fa-sun');
+            } else {
+              icon.classList.remove('fa-sun');
+              icon.classList.add('fa-moon');
+            }
+          });
+        }, 100);
+      });
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <a href="index.html" class="brand" style="text-decoration: none;">
+      <i class="fas fa-cube brand-icon"></i>
+      <div class="brand-name">Nexus</div>
+    </a>
+
+    <div class="nav-section">
+      <div class="nav-title">Booking Hub</div>
+      <ul class="nav-list">
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-target="book-escape">
+            <i class="fas fa-door-closed"></i> Book Escape Room
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-target="book-axe">
+            <i class="fas fa-bullseye"></i> Reserve Axe Lane
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-target="combo-packages">
+            <i class="fas fa-tags"></i> Combo Packages
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-target="event-bookings">
+            <i class="fas fa-glass-cheers"></i> Event Bookings
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-target="request-quote">
+            <i class="fas fa-file-invoice-dollar"></i> Request Quote
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-title">My Activities</div>
+      <ul class="nav-list">
+        <li class="nav-item">
+          <a href="#" class="nav-link active" data-target="upcoming-res">
+            <i class="fas fa-calendar-check"></i> Upcoming Reservations
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-target="booking-history">
+            <i class="fas fa-history"></i> Booking History
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-target="digital-tickets">
+            <i class="fas fa-ticket-alt"></i> Digital Tickets
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-target="digital-waivers">
+            <i class="fas fa-file-signature"></i> Digital Waivers
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-title">Team Management</div>
+      <ul class="nav-list">
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-target="team-mgmt">
+            <i class="fas fa-users-cog"></i> Team Management
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-target="saved-members">
+            <i class="fas fa-address-book"></i> Saved Team Members
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-title">Account</div>
+      <ul class="nav-list">
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-target="my-profile">
+            <i class="fas fa-user-circle"></i> My Profile
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-target="saved-payments">
+            <i class="fas fa-credit-card"></i> Saved Payment Methods
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-target="payment-history">
+            <i class="fas fa-receipt"></i> Payment History
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-target="notifications">
+            <i class="fas fa-bell"></i> Notifications
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-target="settings">
+            <i class="fas fa-cog"></i> Settings
+          </a>
+        </li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- MAIN WRAPPER -->
+  <div class="main-wrapper">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <!-- Navbar Logo -->
+      <a href="index.html" class="navbar-logo" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+        <i class="fas fa-cube" style="color: var(--accent-cyan); font-size: 1.5rem;"></i>
+        <span style="font-weight: 800; font-size: 1.2rem; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase;">NEXUS</span>
+      </a>
+      
+      <div style="flex: 1;"></div>
+      
+      <div class="user-actions">
+        <!-- Theme & RTL Buttons -->
+        <button class="action-btn icon-btn" id="theme-toggle" title="Toggle Theme">
+          <i class="fas fa-sun" id="theme-icon"></i>
+        </button>
+        <button class="action-btn icon-btn" id="rtl-toggle" title="Toggle RTL">
+          <i class="fas fa-arrows-left-right"></i>
+        </button>
+
+        <button class="action-btn icon-btn" onclick="document.querySelector('[data-target=\'notifications\']').click()">
+          <i class="fas fa-bell"></i>
+          <span class="badge">2</span>
+        </button>
+        <div class="user-profile" onclick="document.querySelector('[data-target=\'my-profile\']').click()">
+          <div class="user-info" style="text-align: right; display: none; @media(min-width: 500px){display: block;}">
+            <h4>Jordan Doe</h4>
+            <p>Elite Member</p>
+          </div>
+          <div class="avatar">JD</div>
+        </div>
+      </div>
+      
+      <button class="mobile-toggle hamburger" id="mobile-toggle" style="margin-inline-start: 1rem;">
+        <i class="fas fa-bars"></i>
+      </button>
+    </header>
+
+    <!-- CONTENT AREA -->
+    <main class="content-area">
+
+      <!-- ================= MY ACTIVITIES ================= -->
+      
+      <!-- 1. UPCOMING RESERVATIONS -->
+      <section id="upcoming-res" class="section-panel active">
+        <div class="section-header">
+          <h1 class="section-title">Upcoming Reservations</h1>
+          <p class="section-subtitle">Get ready for your next adventure.</p>
+        </div>
+        
+        <div class="card">
+          <div class="res-item">
+            <div class="res-date">
+              <span>Oct</span>
+              <h3>24</h3>
+            </div>
+            <div class="res-info">
+              <h4>Cyberpunk Heist (Escape Room)</h4>
+              <p><i class="fas fa-clock"></i> 7:00 PM - 8:00 PM</p>
+              <p><i class="fas fa-users"></i> Group of 4</p>
+            </div>
+            <div>
+              <button class="btn btn-primary" onclick="document.querySelector('[data-target=\'digital-tickets\']').click()">View Ticket</button>
+            </div>
+          </div>
+
+          <div class="res-item">
+            <div class="res-date" style="border-color: rgba(255,0,85,0.3); background: rgba(255,0,85,0.05);">
+              <span style="color: var(--accent-pink);">Nov</span>
+              <h3 style="color: var(--accent-pink);">02</h3>
+            </div>
+            <div class="res-info">
+              <h4>VIP Axe Throwing Lane</h4>
+              <p><i class="fas fa-clock"></i> 8:30 PM - 10:00 PM</p>
+              <p><i class="fas fa-users"></i> Group of 6</p>
+            </div>
+            <div>
+              <button class="btn btn-outline" style="border-color: var(--accent-pink); color: var(--accent-pink);">Manage Team</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. BOOKING HISTORY -->
+      <section id="booking-history" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Booking History</h1>
+          <p class="section-subtitle">A log of your past experiences with us.</p>
+        </div>
+        <div class="card">
+          <div class="table-container">
+            <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Experience</th>
+                <th>Players</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Sep 15, 2026</td>
+                <td>The Haunted Cabin (Escape)</td>
+                <td>4</td>
+                <td><span class="status-badge status-used">Completed</span></td>
+                <td><button class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Book Again</button></td>
+              </tr>
+              <tr>
+                <td>Aug 02, 2026</td>
+                <td>Standard Axe Lane</td>
+                <td>2</td>
+                <td><span class="status-badge status-used">Completed</span></td>
+                <td><button class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Book Again</button></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. DIGITAL TICKETS -->
+      <section id="digital-tickets" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Digital Tickets</h1>
+          <p class="section-subtitle">Scan at the front desk for quick entry.</p>
+        </div>
+        <div class="grid-3">
+          <div class="card ticket-card">
+            <span class="status-badge status-active" style="margin-bottom: 1rem;">Active Ticket</span>
+            <h3>Cyberpunk Heist</h3>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">Oct 24 â€¢ 7:00 PM</p>
+            <div class="qr-box">
+              <img src="images/qr_code.png" alt="QR Code">
+            </div>
+            <p style="font-family: monospace; font-size: 1.2rem; letter-spacing: 2px;">TKT-8942-AXE</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. DIGITAL WAIVERS -->
+      <section id="digital-waivers" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Digital Waivers</h1>
+          <p class="section-subtitle">Ensure everyone in your party has signed before arrival.</p>
+        </div>
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <h3 style="margin-bottom: 0.5rem;">Upcoming: VIP Axe Throwing</h3>
+              <p style="color: var(--text-muted);">Nov 02 â€¢ 6 Players</p>
+            </div>
+            <button class="btn btn-primary"><i class="fas fa-share-alt"></i> Share Waiver Link</button>
+          </div>
+          
+          <div class="table-container">
+            <table class="data-table">
+            <thead>
+              <tr>
+                <th>Participant Name</th>
+                <th>Status</th>
+                <th>Date Signed</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Jordan Doe</td>
+                <td><span class="status-badge status-active">Signed</span></td>
+                <td>Oct 10, 2026</td>
+              </tr>
+              <tr>
+                <td>Alex Smith</td>
+                <td><span class="status-badge status-active">Signed</span></td>
+                <td>Oct 11, 2026</td>
+              </tr>
+              <tr>
+                <td>Sam Wilson</td>
+                <td><span class="status-badge status-pending">Pending</span></td>
+                <td>--</td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= BOOKING HUB ================= -->
+
+      <!-- 5. BOOK ESCAPE ROOM -->
+      <section id="book-escape" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Book Escape Room</h1>
+          <p class="section-subtitle">Choose your immersive adventure.</p>
+        </div>
+        <div class="grid-2">
+          <div class="card feature-card">
+            <div class="feature-icon"><i class="fas fa-space-shuttle"></i></div>
+            <h3>Galactic Prison Break</h3>
+            <p>Difficulty: 9/10<br>Capacity: 2-6 Players<br>Time: 60 mins</p>
+            <button class="btn btn-primary" style="width: 100%;">Book Now - $35/pp</button>
+          </div>
+          <div class="card feature-card pink">
+            <div class="feature-icon"><i class="fas fa-ghost"></i></div>
+            <h3>The Haunted Cabin</h3>
+            <p>Difficulty: 7/10<br>Capacity: 2-8 Players<br>Time: 60 mins</p>
+            <button class="btn btn-pink" style="width: 100%;">Book Now - $35/pp</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. RESERVE AXE THROWING -->
+      <section id="book-axe" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Reserve Axe Lane</h1>
+          <p class="section-subtitle">Hit the bullseye with your friends.</p>
+        </div>
+        <div class="card">
+          <form class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Date</label>
+              <input type="date" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Time</label>
+              <input type="time" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Number of Players</label>
+              <select class="form-control">
+                <option>2 Players</option>
+                <option>3-4 Players (1 Lane)</option>
+                <option>5-8 Players (2 Lanes)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Duration</label>
+              <select class="form-control">
+                <option>60 Minutes</option>
+                <option>90 Minutes</option>
+              </select>
+            </div>
+          </form>
+          <button class="btn btn-pink" style="margin-top: 1rem; width: 100%;">Find Availability</button>
+        </div>
+      </section>
+
+      <!-- 7. COMBO PACKAGES -->
+      <section id="combo-packages" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Combo Packages</h1>
+          <p class="section-subtitle">Maximize the fun, minimize the cost.</p>
+        </div>
+        <div class="grid-2">
+          <div class="card feature-card purple">
+            <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+            <h3>The Adrenaline Junkie</h3>
+            <p>1 Hour Escape Room + 1 Hour Axe Throwing.<br>Includes digital group photo and 1 free drink per person.</p>
+            <button class="btn btn-primary" style="background: linear-gradient(135deg, var(--accent-purple), #5500ff); width:100%;">Book Combo - $60/pp</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8. EVENT BOOKINGS -->
+      <section id="event-bookings" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Event Bookings</h1>
+          <p class="section-subtitle">Host your corporate event or party with us.</p>
+        </div>
+        <div class="card">
+          <p style="margin-bottom: 2rem; font-size: 1.1rem; color: var(--text-muted);">We offer full facility buyouts, dedicated party rooms, and catered options for large groups (10-50+ people).</p>
+          <button class="btn btn-primary" onclick="document.querySelector('[data-target=\'request-quote\']').click()">Get a Custom Quote</button>
+        </div>
+      </section>
+
+      <!-- 9. REQUEST QUOTE -->
+      <section id="request-quote" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Request Event Quote</h1>
+          <p class="section-subtitle">Tell us about your upcoming event.</p>
+        </div>
+        <div class="card">
+          <form class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Event Type</label>
+              <select class="form-control">
+                <option>Corporate Team Building</option>
+                <option>Birthday Party</option>
+                <option>Bachelor/Bachelorette</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Estimated Guest Count</label>
+              <input type="number" class="form-control" placeholder="E.g., 15">
+            </div>
+            <div class="form-group" style="grid-column: 1 / -1;">
+              <label class="form-label">Additional Requirements / Details</label>
+              <textarea class="form-control" rows="4" placeholder="Tell us about catering needs, preferred dates, etc."></textarea>
+            </div>
+          </form>
+          <button class="btn btn-primary" style="margin-top: 1rem;">Submit Request</button>
+        </div>
+      </section>
+
+      <!-- ================= TEAM MANAGEMENT ================= -->
+
+      <!-- 10. TEAM MANAGEMENT -->
+      <section id="team-mgmt" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Team Management</h1>
+          <p class="section-subtitle">Organize your crew for upcoming bookings.</p>
+        </div>
+        <div class="card">
+          <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+            <input type="email" class="form-control" placeholder="Enter teammate's email to invite">
+            <button class="btn btn-primary"><i class="fas fa-paper-plane"></i> Send Invite</button>
+          </div>
+          <h3 style="margin-bottom: 1rem;">Current Roster (VIP Axe Throwing)</h3>
+          <ul style="list-style: none;">
+            <li style="padding: 1rem; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between;">
+              <span>Jordan Doe (You)</span>
+              <span class="status-badge status-active">Confirmed</span>
+            </li>
+            <li style="padding: 1rem; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between;">
+              <span>Alex Smith</span>
+              <span class="status-badge status-active">Confirmed</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 11. SAVED TEAM MEMBERS -->
+      <section id="saved-members" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Saved Team Members</h1>
+          <p class="section-subtitle">Quickly add frequent players to new bookings.</p>
+        </div>
+        <div class="card">
+          <div class="table-container">
+            <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Waiver Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Alex Smith</td>
+                <td>alex@example.com</td>
+                <td><span style="color: var(--success);"><i class="fas fa-check-circle"></i> On File</span></td>
+                <td><button class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;"><i class="fas fa-trash"></i></button></td>
+              </tr>
+              <tr>
+                <td>Sam Wilson</td>
+                <td>sam@example.com</td>
+                <td><span style="color: var(--warning);"><i class="fas fa-exclamation-circle"></i> Expired</span></td>
+                <td><button class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;"><i class="fas fa-trash"></i></button></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+          <button class="btn btn-primary" style="margin-top: 1.5rem;"><i class="fas fa-plus"></i> Add Member</button>
+        </div>
+      </section>
+
+      <!-- ================= ACCOUNT ================= -->
+
+      <!-- 12. MY PROFILE -->
+      <section id="my-profile" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">My Profile</h1>
+          <p class="section-subtitle">Manage your personal details.</p>
+        </div>
+        <div class="card">
+          <form class="grid-2">
+            <div class="form-group">
+              <label class="form-label">First Name</label>
+              <input type="text" class="form-control" value="Jordan">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name</label>
+              <input type="text" class="form-control" value="Doe">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input type="email" class="form-control" value="jordan.doe@example.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone Number</label>
+              <input type="tel" class="form-control" value="(555) 987-6543">
+            </div>
+          </form>
+          <button class="btn btn-primary" style="margin-top: 1rem;">Save Changes</button>
+        </div>
+      </section>
+
+      <!-- 13. SAVED PAYMENT METHODS -->
+      <section id="saved-payments" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Saved Payment Methods</h1>
+          <p class="section-subtitle">Manage your cards for faster checkout.</p>
+        </div>
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; padding: 1.5rem; border: 1px solid var(--accent-cyan); border-radius: 12px; background: rgba(0,240,255,0.05);">
+            <div style="display: flex; align-items: center; gap: 15px;">
+              <i class="fab fa-cc-visa" style="font-size: 2.5rem; color: var(--text-main);"></i>
+              <div>
+                <h4 style="font-size: 1.1rem;">Visa ending in **** 4242</h4>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Expires 12/28</p>
+              </div>
+            </div>
+            <button class="btn btn-outline" style="border-color: var(--accent-pink); color: var(--accent-pink);">Remove</button>
+          </div>
+          <button class="btn btn-primary" style="margin-top: 1.5rem;"><i class="fas fa-plus"></i> Add New Card</button>
+        </div>
+      </section>
+
+      <!-- 14. PAYMENT HISTORY -->
+      <section id="payment-history" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Payment History</h1>
+          <p class="section-subtitle">View past receipts and transactions.</p>
+        </div>
+        <div class="card">
+          <div class="table-container">
+            <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Receipt</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Oct 10, 2026</td>
+                <td>Cyberpunk Heist Booking (4x)</td>
+                <td>$140.00</td>
+                <td><button class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;"><i class="fas fa-download"></i> PDF</button></td>
+              </tr>
+              <tr>
+                <td>Aug 01, 2026</td>
+                <td>Axe Lane Deposit</td>
+                <td>$50.00</td>
+                <td><button class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;"><i class="fas fa-download"></i> PDF</button></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 15. NOTIFICATIONS -->
+      <section id="notifications" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Notifications</h1>
+          <p class="section-subtitle">Alerts and updates about your bookings.</p>
+        </div>
+        <div class="card">
+          <div style="padding: 1.5rem; border-left: 4px solid var(--accent-pink); background: rgba(255,0,85,0.05); margin-bottom: 1rem; border-radius: 0 12px 12px 0;">
+            <h4 style="margin-bottom: 0.5rem;">Action Required: Missing Waivers</h4>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">1 player in your upcoming Axe Throwing reservation has not signed the waiver.</p>
+            <button class="btn btn-outline" style="margin-top: 1rem; border-color: var(--accent-pink); color: var(--accent-pink); padding: 0.5rem 1rem; font-size: 0.85rem;" onclick="document.querySelector('[data-target=\'digital-waivers\']').click()">Review Waivers</button>
+          </div>
+          <div style="padding: 1.5rem; border-left: 4px solid var(--accent-cyan); background: rgba(0,240,255,0.05); border-radius: 0 12px 12px 0;">
+            <h4 style="margin-bottom: 0.5rem;">Booking Confirmed</h4>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">Your reservation for Cyberpunk Heist is confirmed for Oct 24.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 16. SETTINGS -->
+      <section id="settings" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Settings</h1>
+          <p class="section-subtitle">App preferences and account security.</p>
+        </div>
+        <div class="card">
+          <h3 style="margin-bottom: 1.5rem;">Preferences</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--glass-border); gap: 1rem;">
+            <div style="flex: 1; min-width: 0;">
+              <h4>Email Notifications</h4>
+              <p style="color: var(--text-muted); font-size: 0.9rem;">Receive booking confirmations and reminders via email.</p>
+            </div>
+            <label style="position: relative; display: inline-block; width: 50px; height: 28px; flex-shrink: 0;">
+              <input type="checkbox" checked style="opacity: 0; width: 0; height: 0;">
+              <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--accent-cyan); border-radius: 34px; transition: .4s;">
+                <span style="position: absolute; content: ''; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: #000; border-radius: 50%; transition: .4s; transform: translateX(22px);"></span>
+              </span>
+            </label>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--glass-border); gap: 1rem;">
+            <div style="flex: 1; min-width: 0;">
+              <h4>SMS Reminders</h4>
+              <p style="color: var(--text-muted); font-size: 0.9rem;">Get a text message 2 hours before your game.</p>
+            </div>
+            <label style="position: relative; display: inline-block; width: 50px; height: 28px; flex-shrink: 0;">
+              <input type="checkbox" style="opacity: 0; width: 0; height: 0;">
+              <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--surface-2); border-radius: 34px; transition: .4s;">
+                <span style="position: absolute; content: ''; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: var(--text-muted); border-radius: 50%; transition: .4s;"></span>
+              </span>
+            </label>
+          </div>
+
+          <h3 style="margin-top: 2.5rem; margin-bottom: 1.5rem; color: var(--accent-pink);">Danger Zone</h3>
+          <div style="padding: 1.5rem; border: 1px solid rgba(255,0,85,0.3); border-radius: 12px; background: rgba(255,0,85,0.05);">
+            <h4 style="margin-bottom: 0.5rem;">Delete Account</h4>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem;">Permanently remove your account and all associated data.</p>
+            <button class="btn btn-outline" style="border-color: var(--accent-pink); color: var(--accent-pink);">Delete Account</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    // Tab switching logic
+    const navLinks = document.querySelectorAll('.nav-link');
+    const panels = document.querySelectorAll('.section-panel');
+
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        // Remove active class from all links and panels
+        navLinks.forEach(l => l.classList.remove('active'));
+        panels.forEach(p => p.classList.remove('active'));
+        
+        // Add active class to clicked link
+        link.classList.add('active');
+        
+        // Show corresponding panel
+        const targetId = link.getAttribute('data-target');
+        const targetPanel = document.getElementById(targetId);
+        if (targetPanel) {
+          targetPanel.classList.add('active');
+        }
+
+        // On mobile, close sidebar after click
+        if (window.innerWidth <= 992) {
+          document.getElementById('sidebar').classList.remove('open');
+        }
+      });
+    });
+
+    // Mobile toggle
+    document.getElementById('mobile-toggle').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+    });
+
+    // Theme toggle
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('theme-icon');
+      if (html.getAttribute('data-theme') === 'dark') {
+        html.setAttribute('data-theme', 'light');
+        if (themeIcon) themeIcon.className = 'fas fa-moon';
+      } else {
+        html.setAttribute('data-theme', 'dark');
+        if (themeIcon) themeIcon.className = 'fas fa-sun';
+      }
+    });
+
+    // RTL toggle
+    document.getElementById('rtl-toggle').addEventListener('click', () => {
+      document.body.classList.add('no-transition-global');
+      const html = document.documentElement;
+      if (html.getAttribute('dir') === 'rtl') {
+        html.removeAttribute('dir');
+      } else {
+        html.setAttribute('dir', 'rtl');
+      }
+      void document.body.offsetHeight; // Force reflow
+      setTimeout(() => {
+        document.body.classList.remove('no-transition-global');
+      }, 50);
+    });
+
+    // Custom toggle switch logic for visual feedback (since CSS alone is tricky without proper DOM structure)
+    const toggles = document.querySelectorAll('input[type="checkbox"]');
+    toggles.forEach(toggle => {
+      toggle.addEventListener('change', function() {
+        const spanBg = this.nextElementSibling;
+        const spanKnob = spanBg.querySelector('span');
+        if(this.checked) {
+          spanBg.style.backgroundColor = 'var(--accent-cyan)';
+          spanKnob.style.transform = 'translateX(22px)';
+          spanKnob.style.backgroundColor = '#000';
+        } else {
+          spanBg.style.backgroundColor = 'var(--surface-2)';
+          spanKnob.style.transform = 'translateX(0)';
+          spanKnob.style.backgroundColor = 'var(--text-muted)';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+

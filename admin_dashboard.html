@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="admin-dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Nexus Admin | Command Center</title>
+  <meta name="description" content="Administration dashboard for Nexus Escape & Axe">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ----- GLOBAL VARIABLES (Admin Command Center Theme) ----- */
+    :root {
+      --bg-color: #0b0f13;
+      --surface-1: #13181f;
+      --surface-2: #1e2630;
+      
+      --accent-blue: #0ea5e9;
+      --accent-amber: #f59e0b;
+      --accent-crimson: #ef4444;
+      --accent-emerald: #10b981;
+      --accent-purple: #8b5cf6;
+      
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      
+      --border-color: #2a3441;
+      
+      --font-main: 'Inter', sans-serif;
+      --transition: all 0.2s ease;
+    }
+
+    [data-theme="admin-light"] {
+      --bg-color: #f1f5f9;
+      --surface-1: #ffffff;
+      --surface-2: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border-color: #cbd5e1;
+    }
+
+    /* RTL Support */
+    [dir="rtl"] .sidebar { left: auto; right: 0; border-right: none; border-left: 1px solid var(--border-color); }
+    [dir="rtl"] .main-wrapper { margin-left: 0; margin-right: 260px; }
+    @media (max-width: 992px) {
+      [dir="rtl"] .sidebar { left: 0; right: auto; transform: translateX(-100%); border-left: none; border-right: 1px solid var(--border-color); }
+      [dir="rtl"] .sidebar.open { transform: translateX(0); }
+      [dir="rtl"] .main-wrapper { margin-right: 0; }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-main);
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-color); }
+    ::-webkit-scrollbar-thumb { background: var(--surface-2); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
+
+    /* ========== SIDEBAR ========== */
+    .sidebar {
+      width: 260px;
+      background: var(--surface-1);
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border-color);
+      z-index: 100;
+      transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+      overflow-y: auto;
+    }
+
+    .brand {
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      background: var(--surface-1);
+      z-index: 10;
+    }
+
+    .brand-icon {
+      font-size: 1.5rem;
+      color: var(--accent-amber);
+    }
+
+    .brand-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--text-main);
+    }
+
+    .nav-section { padding: 1.5rem 0 0; }
+    
+    .nav-title {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 0 1.5rem 0.5rem;
+      font-weight: 600;
+    }
+
+    .nav-list { list-style: none; padding-bottom: 1rem; }
+    
+    .nav-item { margin: 0.1rem 0.8rem; }
+    
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0.6rem 1rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      border-radius: 6px;
+      transition: var(--transition);
+    }
+
+    .nav-link i { width: 18px; text-align: center; font-size: 1rem; }
+
+    .nav-link:hover {
+      color: var(--text-main);
+      background: var(--surface-2);
+    }
+
+    .nav-link.active {
+      background: rgba(14, 165, 233, 0.1);
+      color: var(--accent-blue);
+      border-left: 3px solid var(--accent-blue);
+    }
+
+    /* ========== MAIN CONTENT ========== */
+    .main-wrapper {
+      flex: 1;
+      margin-left: 260px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Top Bar */
+    .topbar {
+      height: 60px;
+      background: var(--surface-1);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .mobile-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text-main);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .user-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .action-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .action-btn:hover { color: var(--accent-blue); }
+
+    .badge {
+      position: absolute;
+      top: -5px;
+      right: -8px;
+      background: var(--accent-crimson);
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 2px 5px;
+      border-radius: 10px;
+    }
+
+    .admin-profile-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-left: 1rem;
+      border-left: 1px solid var(--border-color);
+      cursor: pointer;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: var(--surface-2);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent-amber);
+    }
+
+    /* Content Area */
+    .content-area {
+      padding: 2rem;
+      flex: 1;
+      width: 100%;
+    }
+
+    .section-panel {
+      display: none;
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    .section-panel.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .section-header {
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end; flex-wrap: wrap; gap: 1rem;
+    }
+    
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* Dashboard Cards */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .metric-card {
+      background: var(--surface-1);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      border-top: 3px solid transparent;
+    }
+
+    .metric-card.amber { border-top-color: var(--accent-amber); }
+    .metric-card.blue { border-top-color: var(--accent-blue); }
+    .metric-card.emerald { border-top-color: var(--accent-emerald); }
+    .metric-card.purple { border-top-color: var(--accent-purple); }
+
+    .metric-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    .metric-card.amber .metric-icon { background: rgba(245, 158, 11, 0.1); color: var(--accent-amber); }
+    .metric-card.blue .metric-icon { background: rgba(14, 165, 233, 0.1); color: var(--accent-blue); }
+    .metric-card.emerald .metric-icon { background: rgba(16, 185, 129, 0.1); color: var(--accent-emerald); }
+    .metric-card.purple .metric-icon { background: rgba(139, 92, 246, 0.1); color: var(--accent-purple); }
+
+    .metric-info h3 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .metric-info p { color: var(--text-muted); font-size: 0.85rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;}
+
+    /* Common Components */
+    .card {
+      background: var(--surface-1);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+      @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    /* Forms */
+    .form-group { margin-bottom: 1.2rem; }
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+    .form-control {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: var(--surface-2);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      font-family: inherit;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: var(--transition);
+    }
+    
+    .btn-primary { background: var(--accent-blue); color: #fff; }
+    .btn-primary:hover { background: #0284c7; }
+    
+    .btn-outline { background: transparent; border-color: var(--border-color); color: var(--text-main); }
+    .btn-outline:hover { background: var(--surface-2); border-color: var(--accent-blue); color: var(--accent-blue); }
+    
+    .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--accent-crimson); border-color: rgba(239, 68, 68, 0.3); }
+    .btn-danger:hover { background: var(--accent-crimson); color: #fff; }
+
+    /* Tables */
+    .table-container { overflow-x: auto; }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .data-table th {
+      text-align: left;
+      padding: 1rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--surface-2);
+    }
+    .data-table td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+    .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .status-success { background: rgba(16, 185, 129, 0.1); color: var(--accent-emerald); }
+    .status-warning { background: rgba(245, 158, 11, 0.1); color: var(--accent-amber); }
+    .status-danger { background: rgba(239, 68, 68, 0.1); color: var(--accent-crimson); }
+    .status-info { background: rgba(14, 165, 233, 0.1); color: var(--accent-blue); }
+
+    /* Custom Admin Cards */
+    .manage-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center; flex-wrap: wrap; gap: 1rem;
+      padding: 1.2rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--surface-2);
+      margin-bottom: 1rem;
+    }
+    .manage-info h4 { margin-bottom: 0.3rem; font-size: 1rem; }
+    .manage-info p { color: var(--text-muted); font-size: 0.85rem; }
+    
+
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+      .sidebar { left: auto; right: 0; transform: translateX(100%); border-right: none; border-left: 1px solid var(--border-color); }
+      .sidebar.open { transform: translateX(0); }
+      .main-wrapper { margin-left: 0; }
+      .mobile-toggle { display: block; }
+      .topbar .action-btn { width: 45px !important; margin: 0 !important; }
+      .topbar .user-actions { gap: 0.5rem; }
+      .topbar { padding: 0 1rem; }
+      .navbar-logo span { display: none; }
+      .admin-profile-btn span { display: none; }
+    }
+    .no-transition-global * { transition: none !important; }
+  </style>
+  <link rel="stylesheet" href="mobile.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <script>
+    (function() {
+      const isDark = localStorage.getItem('venue_theme_dark');
+      const htmlEl = document.documentElement;
+      let currentTheme = htmlEl.getAttribute('data-theme');
+      const isAdmin = currentTheme && currentTheme.includes('admin');
+      
+      if (isDark === 'true') {
+        htmlEl.setAttribute('data-theme', isAdmin ? 'admin-dark' : 'dark');
+      } else if (isDark === 'false') {
+        if (isAdmin) {
+          htmlEl.setAttribute('data-theme', 'admin-light');
+        } else if (currentTheme === 'dark' || currentTheme === 'light') {
+          htmlEl.setAttribute('data-theme', 'light');
+        } else {
+          htmlEl.removeAttribute('data-theme');
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        document.body.addEventListener('click', (e) => {
+          const toggleBtn = e.target.closest('#theme-toggle, #mobile-theme-toggle');
+          if (toggleBtn) {
+            setTimeout(() => {
+              const theme = document.documentElement.getAttribute('data-theme');
+              const darkActive = theme === 'dark' || theme === 'admin-dark';
+              localStorage.setItem('venue_theme_dark', darkActive);
+            }, 50);
+          }
+        });
+
+        setTimeout(() => {
+          const theme = document.documentElement.getAttribute('data-theme');
+          const darkActive = theme === 'dark' || theme === 'admin-dark';
+          
+          const themeIcons = document.querySelectorAll('#theme-icon, #theme-toggle i, #mobile-theme-icon');
+          themeIcons.forEach(icon => {
+            if (darkActive) {
+              icon.classList.remove('fa-moon');
+              icon.classList.add('fa-sun');
+            } else {
+              icon.classList.remove('fa-sun');
+              icon.classList.add('fa-moon');
+            }
+          });
+        }, 100);
+      });
+    })();
+  </script>
+
+
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <a href="index.html" class="brand" style="text-decoration: none; display: flex; align-items: center; gap: 10px;">
+      <i class="fas fa-cube" style="color: #6366f1; font-size: 1.8rem; filter: drop-shadow(0 0 8px #6366f1);"></i>
+      <span style="font-weight: 800; font-size: 1.5rem; background: linear-gradient(90deg, #6366f1, #9d00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase;">NEXUS</span>
+    </a>
+
+    <div class="nav-section">
+      <div class="nav-title">Main</div>
+      <ul class="nav-list">
+        <li class="nav-item"><a href="#" class="nav-link active" data-target="dashboard-overview"><i class="fas fa-chart-line"></i> Dashboard Overview</a></li>
+        <li class="nav-item"><a href="#" class="nav-link" data-target="admin-profile"><i class="fas fa-user-shield"></i> Admin Profile</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-title">Operations Management</div>
+      <ul class="nav-list">
+        <li class="nav-item"><a href="#" class="nav-link" data-target="escape-mgmt"><i class="fas fa-door-open"></i> Escape Rooms</a></li>
+        <li class="nav-item"><a href="#" class="nav-link" data-target="axe-mgmt"><i class="fas fa-bullseye"></i> Axe Throwing</a></li>
+        <li class="nav-item"><a href="#" class="nav-link" data-target="package-mgmt"><i class="fas fa-box-open"></i> Packages</a></li>
+        <li class="nav-item"><a href="#" class="nav-link" data-target="event-mgmt"><i class="fas fa-calendar-alt"></i> Events</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-title">Bookings & Customers</div>
+      <ul class="nav-list">
+        <li class="nav-item"><a href="#" class="nav-link" data-target="reservation-mgmt"><i class="fas fa-book"></i> Reservations</a></li>
+        <li class="nav-item"><a href="#" class="nav-link" data-target="customer-mgmt"><i class="fas fa-users"></i> Customers</a></li>
+        <li class="nav-item"><a href="#" class="nav-link" data-target="team-mgmt"><i class="fas fa-users-cog"></i> Teams</a></li>
+        <li class="nav-item"><a href="#" class="nav-link" data-target="booking-history"><i class="fas fa-history"></i> Booking History</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-title">Compliance & Access</div>
+      <ul class="nav-list">
+        <li class="nav-item"><a href="#" class="nav-link" data-target="waiver-mgmt"><i class="fas fa-file-signature"></i> Digital Waivers</a></li>
+        <li class="nav-item"><a href="#" class="nav-link" data-target="ticket-mgmt"><i class="fas fa-ticket-alt"></i> Digital Tickets</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-title">Finance & Reporting</div>
+      <ul class="nav-list">
+        <li class="nav-item"><a href="#" class="nav-link" data-target="payment-mgmt"><i class="fas fa-credit-card"></i> Payments</a></li>
+        <li class="nav-item"><a href="#" class="nav-link" data-target="revenue-reports"><i class="fas fa-chart-pie"></i> Revenue Reports</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-title">System</div>
+      <ul class="nav-list">
+        <li class="nav-item"><a href="#" class="nav-link" data-target="notifications"><i class="fas fa-bell"></i> Notifications</a></li>
+        <li class="nav-item"><a href="#" class="nav-link" data-target="settings"><i class="fas fa-cog"></i> Settings</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- MAIN WRAPPER -->
+  <div class="main-wrapper">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <!-- Navbar Logo -->
+      <a href="index.html" class="navbar-logo" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+        <i class="fas fa-cube" style="color: #6366f1; font-size: 1.8rem; filter: drop-shadow(0 0 8px #6366f1);"></i>
+        <span style="font-weight: 800; font-size: 1.5rem; background: linear-gradient(90deg, #6366f1, #9d00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase;">NEXUS</span>
+      </a>
+
+      <div style="flex: 1;"></div>
+      <div class="user-actions">
+        <!-- Theme & RTL Buttons -->
+        <button class="action-btn icon-btn" id="theme-toggle" title="Toggle Theme" style="margin-right: 12px;"><i class="fas fa-sun" id="theme-icon"></i></button>
+        <button class="action-btn icon-btn" id="rtl-toggle" title="Toggle RTL" style="margin-right: 12px;"><i class="fas fa-arrows-left-right"></i></button>
+
+        <button class="action-btn icon-btn" onclick="document.querySelector('[data-target=\'notifications\']').click()">
+          <i class="fas fa-envelope"></i><span class="badge">4</span>
+        </button>
+        <div class="admin-profile-btn" onclick="document.querySelector('[data-target=\'admin-profile\']').click()">
+          <span style="font-size: 0.85rem; font-weight: 500;">Admin_Root</span>
+          <div class="avatar"><i class="fas fa-crown"></i></div>
+        </div>
+      </div>
+      <button class="mobile-toggle hamburger" id="mobile-toggle" style="margin-inline-start: 1rem;"><i class="fas fa-bars"></i></button>
+    </header>
+
+    <!-- CONTENT AREA -->
+    <main class="content-area">
+
+      <!-- 1. DASHBOARD OVERVIEW -->
+      <section id="dashboard-overview" class="section-panel active">
+        <div class="section-header">
+          <h1 class="section-title">Dashboard Overview</h1>
+          <button class="btn btn-primary"><i class="fas fa-download"></i> Export Daily Log</button>
+        </div>
+        
+        <div class="metric-grid">
+          <div class="metric-card amber">
+            <div class="metric-icon"><i class="fas fa-ticket-alt"></i></div>
+            <div class="metric-info">
+              <h3>124</h3>
+              <p>Today's Bookings</p>
+            </div>
+          </div>
+          <div class="metric-card emerald">
+            <div class="metric-icon"><i class="fas fa-dollar-sign"></i></div>
+            <div class="metric-info">
+              <h3>$4,250</h3>
+              <p>Today's Revenue</p>
+            </div>
+          </div>
+          <div class="metric-card crimson" style="border-top-color: var(--accent-crimson);">
+            <div class="metric-icon" style="background: rgba(239,68,68,0.1); color: var(--accent-crimson);"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="metric-info">
+              <h3 style="color: var(--text-main);">12</h3>
+              <p>Missing Waivers (Today)</p>
+            </div>
+          </div>
+          <div class="metric-card blue">
+            <div class="metric-icon"><i class="fas fa-users"></i></div>
+            <div class="metric-info">
+              <h3>38</h3>
+              <p>Active Staff</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1.5rem; font-size: 1.1rem; color: var(--text-main);">Upcoming Sessions (Next 2 Hours)</h3>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Experience</th>
+                <th>Customer</th>
+                <th>Size</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>16:00</td>
+                <td>Galactic Prison Break</td>
+                <td>Alex Johnson</td>
+                <td>4</td>
+                <td><span class="status-badge status-warning">Checking In</span></td>
+              </tr>
+              <tr>
+                <td>16:30</td>
+                <td>VIP Axe Lane 1</td>
+                <td>Sarah Smith</td>
+                <td>8</td>
+                <td><span class="status-badge status-info">Pending Arrival</span></td>
+              </tr>
+              <tr>
+                <td>17:00</td>
+                <td>The Haunted Cabin</td>
+                <td>Mike Davis</td>
+                <td>6</td>
+                <td><span class="status-badge status-success">All Waivers Signed</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 2. ADMIN PROFILE -->
+      <section id="admin-profile" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Admin Profile</h1>
+        </div>
+        <div class="card">
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Username</label>
+              <input type="text" class="form-control" value="Admin_Root" disabled>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Role Level</label>
+              <input type="text" class="form-control" value="Super Administrator" disabled>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" value="root@nexusescape.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone</label>
+              <input type="tel" class="form-control" value="(555) 000-0001">
+            </div>
+          </div>
+          <button class="btn btn-primary" style="margin-top: 1rem;">Update Profile</button>
+        </div>
+      </section>
+
+      <!-- 3. ESCAPE ROOM MANAGEMENT -->
+      <section id="escape-mgmt" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Escape Room Management</h1>
+          <button class="btn btn-primary"><i class="fas fa-plus"></i> Add New Room</button>
+        </div>
+        <div class="card">
+          <div class="manage-card">
+            <div class="manage-info">
+              <h4>Galactic Prison Break</h4>
+              <p>Capacity: 2-6 | Base Price: $35/pp | Status: <span class="status-badge status-success">Operational</span></p>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button class="btn btn-outline">Edit</button>
+              <button class="btn btn-danger">Take Offline</button>
+            </div>
+          </div>
+          <div class="manage-card">
+            <div class="manage-info">
+              <h4>The Haunted Cabin</h4>
+              <p>Capacity: 2-8 | Base Price: $35/pp | Status: <span class="status-badge status-warning">Maintenance Required</span></p>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button class="btn btn-outline">Edit</button>
+              <button class="btn btn-danger">Take Offline</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. AXE THROWING LANE MANAGEMENT -->
+      <section id="axe-mgmt" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Axe Throwing Lane Management</h1>
+        </div>
+        <div class="card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Lane ID</th>
+                <th>Type</th>
+                <th>Current Status</th>
+                <th>Next Booking</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Lane 01</td>
+                <td>Standard</td>
+                <td><span class="status-badge status-success">Available</span></td>
+                <td>18:00 (J. Doe)</td>
+                <td><button class="btn btn-outline" style="padding:0.3rem 0.6rem;">Manage</button></td>
+              </tr>
+              <tr>
+                <td>Lane 02</td>
+                <td>Standard</td>
+                <td><span class="status-badge status-danger">In Use</span></td>
+                <td>19:00 (M. Smith)</td>
+                <td><button class="btn btn-outline" style="padding:0.3rem 0.6rem;">Manage</button></td>
+              </tr>
+              <tr>
+                <td>Lane 03 (VIP)</td>
+                <td>Premium</td>
+                <td><span class="status-badge status-warning">Cleaning</span></td>
+                <td>17:30 (A. Johnson)</td>
+                <td><button class="btn btn-outline" style="padding:0.3rem 0.6rem;">Manage</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 5. PACKAGE MANAGEMENT -->
+      <section id="package-mgmt" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Package Management</h1>
+          <button class="btn btn-primary"><i class="fas fa-plus"></i> Create Package</button>
+        </div>
+        <div class="card">
+          <div class="manage-card">
+            <div class="manage-info">
+              <h4>The Adrenaline Junkie Combo</h4>
+              <p>1hr Escape + 1hr Axe | Price: $60/pp | Active Sales: 45 this week</p>
+            </div>
+            <button class="btn btn-outline">Edit Details</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. EVENT MANAGEMENT -->
+      <section id="event-mgmt" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Event & Quote Management</h1>
+        </div>
+        <div class="card table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Req Date</th>
+                <th>Client</th>
+                <th>Event Type</th>
+                <th>Guest Count</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Oct 13, 2026</td>
+                <td>TechCorp Inc.</td>
+                <td>Corporate Team Building</td>
+                <td>45</td>
+                <td><span class="status-badge status-warning">Pending Quote</span></td>
+                <td><button class="btn btn-primary" style="padding:0.3rem 0.6rem;">Draft Quote</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 7. RESERVATION MANAGEMENT -->
+      <section id="reservation-mgmt" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Reservation Management</h1>
+          <div style="display:flex; gap:10px;">
+            <input type="text" class="form-control" placeholder="Search booking ID..." style="width: 250px;">
+            <button class="btn btn-primary"><i class="fas fa-search"></i></button>
+          </div>
+        </div>
+        <div class="card table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Customer</th>
+                <th>Experience</th>
+                <th>Date/Time</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>#RES-9942</td>
+                <td>Jordan Doe</td>
+                <td>Galactic Prison</td>
+                <td>Oct 24, 19:00</td>
+                <td><span class="status-badge status-success">Confirmed</span></td>
+                <td><button class="btn btn-outline" style="padding:0.3rem 0.6rem;">Details</button></td>
+              </tr>
+              <tr>
+                <td>#RES-9943</td>
+                <td>Alex Smith</td>
+                <td>Axe Lane 2</td>
+                <td>Oct 24, 20:00</td>
+                <td><span class="status-badge status-danger">Unpaid</span></td>
+                <td><button class="btn btn-outline" style="padding:0.3rem 0.6rem;">Details</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 8. CUSTOMER MANAGEMENT -->
+      <section id="customer-mgmt" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Customer Database</h1>
+          <button class="btn btn-outline"><i class="fas fa-file-export"></i> Export CSV</button>
+        </div>
+        <div class="card table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Total Bookings</th>
+                <th>Lifetime Value</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Jordan Doe</td>
+                <td>jordan@example.com</td>
+                <td>5</td>
+                <td>$450.00</td>
+                <td><button class="btn btn-outline" style="padding:0.3rem 0.6rem;">View Profile</button></td>
+              </tr>
+              <tr>
+                <td>Sarah Connor</td>
+                <td>sarah@example.com</td>
+                <td>12</td>
+                <td>$1,200.00</td>
+                <td><button class="btn btn-outline" style="padding:0.3rem 0.6rem;">View Profile</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 9. TEAM MANAGEMENT (Bookings) -->
+      <section id="team-mgmt" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Customer Team Rosters</h1>
+          <p style="color: var(--text-muted);">View and manage team rosters for upcoming reservations.</p>
+        </div>
+        <div class="card">
+          <div class="manage-card">
+            <div class="manage-info">
+              <h4>#RES-9942 (Galactic Prison)</h4>
+              <p>Captain: Jordan Doe | 4/4 Members Joined | All Waivers Signed</p>
+            </div>
+            <button class="btn btn-outline">View Roster</button>
+          </div>
+          <div class="manage-card" style="border-left: 3px solid var(--accent-crimson);">
+            <div class="manage-info">
+              <h4>#RES-9943 (Axe Lane 2)</h4>
+              <p>Captain: Alex Smith | 2/6 Members Joined | 4 Waivers Missing</p>
+            </div>
+            <button class="btn btn-outline">Manage / Remind</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 10. BOOKING HISTORY -->
+      <section id="booking-history" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Global Booking History</h1>
+        </div>
+        <div class="card">
+          <p style="color: var(--text-muted); margin-bottom: 1rem;">Filter historical records for compliance and audits.</p>
+          <div class="grid-2">
+            <input type="date" class="form-control">
+            <input type="date" class="form-control">
+          </div>
+          <button class="btn btn-primary" style="margin-top:1rem;">Generate Report</button>
+        </div>
+      </section>
+
+      <!-- 11. DIGITAL WAIVER MANAGEMENT -->
+      <section id="waiver-mgmt" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Digital Waiver Compliance</h1>
+        </div>
+        <div class="card table-container">
+          <h3 style="margin-bottom: 1rem; color: var(--text-main); font-size: 1.1rem;">Recent Submissions</h3>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date Signed</th>
+                <th>Customer Name</th>
+                <th>Associated Booking</th>
+                <th>Status</th>
+                <th>PDF</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Oct 13, 2026</td>
+                <td>Emily Blunt</td>
+                <td>#RES-9942</td>
+                <td><span class="status-badge status-success">Valid</span></td>
+                <td><button class="btn btn-outline" style="padding:0.2rem 0.5rem;"><i class="fas fa-file-pdf"></i></button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 12. DIGITAL TICKET MANAGEMENT -->
+      <section id="ticket-mgmt" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Digital Ticket Scanner Dashboard</h1>
+        </div>
+        <div class="grid-2">
+          <div class="card" style="text-align: center; padding: 3rem;">
+            <i class="fas fa-qrcode" style="font-size: 4rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+            <h3 style="margin-bottom: 1rem; color: var(--text-main);">Manual Override</h3>
+            <input type="text" class="form-control" placeholder="Enter Ticket ID manually" style="text-align: center; margin-bottom: 1rem;">
+            <button class="btn btn-primary" style="width: 100%;">Verify Ticket</button>
+          </div>
+          <div class="card">
+            <h3 style="margin-bottom: 1rem; color: var(--text-main);">Recent Scans</h3>
+            <ul style="list-style:none;">
+              <li style="padding: 1rem; border-bottom: 1px solid var(--border-color); display:flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                <span style="word-break: break-all;">TKT-8942</span>
+                <span class="status-badge status-success" style="white-space: nowrap; text-align: center;">Admitted</span>
+              </li>
+              <li style="padding: 1rem; border-bottom: 1px solid var(--border-color); display:flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                <span style="word-break: break-all;">TKT-9911</span>
+                <span class="status-badge status-danger" style="white-space: nowrap; text-align: center;">Invalid (Used)</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 13. PAYMENT MANAGEMENT -->
+      <section id="payment-mgmt" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Payment Management</h1>
+          <button class="btn btn-outline">Process Refund</button>
+        </div>
+        <div class="card table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Transaction ID</th>
+                <th>Customer</th>
+                <th>Amount</th>
+                <th>Gateway</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>TXN-A1B2C3D4</td>
+                <td>Jordan Doe</td>
+                <td>$140.00</td>
+                <td>Stripe</td>
+                <td><span class="status-badge status-success">Succeeded</span></td>
+              </tr>
+              <tr>
+                <td>TXN-E5F6G7H8</td>
+                <td>Alex Smith</td>
+                <td>$35.00</td>
+                <td>PayPal</td>
+                <td><span class="status-badge status-warning">Pending</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 14. REVENUE REPORTS -->
+      <section id="revenue-reports" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">Revenue Reports</h1>
+        </div>
+        <div class="card">
+          <div style="height: 300px; width: 100%; border: 1px dashed var(--border-color); display: flex; align-items: center; justify-content: center; border-radius: 8px; margin-bottom: 1.5rem; background: var(--surface-2);">
+            <p style="color: var(--text-muted); text-align: center; width: 100%; padding: 0 1rem;"><i class="fas fa-chart-bar" style="display: block; margin: 0 auto 0.5rem; font-size: 2rem;"></i> [ Interactive Chart Widget Placeholder ]</p>
+          </div>
+          <div class="grid-2">
+            <div class="metric-card">
+              <div class="metric-info">
+                <h3>$42,500</h3>
+                <p>MTD Revenue</p>
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-info">
+                <h3>+15%</h3>
+                <p>Growth vs Last</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 15. NOTIFICATIONS -->
+      <section id="notifications" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">System Notifications</h1>
+        </div>
+        <div class="card">
+          <div style="padding: 1rem; border-left: 3px solid var(--accent-crimson); background: var(--surface-2); margin-bottom: 1rem;">
+            <h4 style="margin-bottom: 0.3rem; color: var(--text-main);">System Alert: Payment Gateway</h4>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">Stripe API latency detected. 2 payments currently queued.</p>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">10 mins ago</p>
+          </div>
+          <div style="padding: 1rem; border-left: 3px solid var(--accent-amber); background: var(--surface-2); margin-bottom: 1rem;">
+            <h4 style="margin-bottom: 0.3rem; color: var(--text-main);">Operational Alert: Haunted Cabin</h4>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">Sensor #4 in Room B reported offline.</p>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">1 hr ago</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 16. SETTINGS -->
+      <section id="settings" class="section-panel">
+        <div class="section-header">
+          <h1 class="section-title">System Settings</h1>
+        </div>
+        <div class="card">
+          <h3 style="margin-bottom: 1rem; color: var(--text-main);">Facility Operating Hours</h3>
+          <div class="grid-2" style="margin-bottom: 2rem;">
+            <div class="form-group">
+              <label class="form-label">Opening Time</label>
+              <input type="time" class="form-control" value="12:00">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Closing Time</label>
+              <input type="time" class="form-control" value="23:00">
+            </div>
+          </div>
+          
+          <h3 style="margin-bottom: 1rem; color: var(--text-main); border-top: 1px solid var(--border-color); padding-top: 1.5rem;">Access Control</h3>
+          <button class="btn btn-outline" style="margin-bottom: 1rem;"><i class="fas fa-users-cog"></i> Manage Staff Roles</button>
+          <br>
+          <button class="btn btn-outline"><i class="fas fa-key"></i> API Keys & Integrations</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    // Tab switching logic
+    const navLinks = document.querySelectorAll('.nav-link');
+    const panels = document.querySelectorAll('.section-panel');
+
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        // Remove active class from all links and panels
+        navLinks.forEach(l => l.classList.remove('active'));
+        panels.forEach(p => p.classList.remove('active'));
+        
+        // Add active class to clicked link
+        link.classList.add('active');
+        
+        // Show corresponding panel
+        const targetId = link.getAttribute('data-target');
+        const targetPanel = document.getElementById(targetId);
+        if (targetPanel) {
+          targetPanel.classList.add('active');
+        }
+
+        // On mobile, close sidebar after click
+        if (window.innerWidth <= 992) {
+          document.getElementById('sidebar').classList.remove('open');
+        }
+      });
+    });
+
+    // Mobile toggle
+    document.getElementById('mobile-toggle').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+    });
+
+    // Theme toggle
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('theme-icon');
+      if (html.getAttribute('data-theme') === 'admin-dark') {
+        html.setAttribute('data-theme', 'admin-light');
+        if (themeIcon) themeIcon.className = 'fas fa-moon';
+      } else {
+        html.setAttribute('data-theme', 'admin-dark');
+        if (themeIcon) themeIcon.className = 'fas fa-sun';
+      }
+    });
+
+    // RTL toggle
+    document.getElementById('rtl-toggle').addEventListener('click', () => {
+      document.body.classList.add('no-transition-global');
+      const html = document.documentElement;
+      if (html.getAttribute('dir') === 'rtl') {
+        html.removeAttribute('dir');
+      } else {
+        html.setAttribute('dir', 'rtl');
+      }
+      void document.body.offsetHeight; // Force reflow
+      setTimeout(() => {
+        document.body.classList.remove('no-transition-global');
+      }, 50);
+    });
+  </script>
+</body>
+</html>

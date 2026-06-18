@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Escape Room & Axe Throwing | VenueDash</title>
+  <meta name="description" content="Dashboard for booking rooms, digital waivers, team rosters & safety demos.">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ----- GLOBAL VARIABLES (Light / Dark) ----- */
+    :root {
+      --bg-color: #f8fafc;
+      --nav-bg: rgba(255, 255, 255, 0.85);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --accent-color: #6366f1;
+      --accent-hover: #4f46e5;
+      --border-color: rgba(0, 0, 0, 0.1);
+      --dropdown-bg: rgba(255, 255, 255, 0.95);
+      --shadow-color: rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #0f172a;
+      --nav-bg: rgba(15, 23, 42, 0.85);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent-color: #38bdf8;
+      --accent-hover: #0ea5e9;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --dropdown-bg: rgba(15, 23, 42, 0.95);
+      --shadow-color: rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Navbar */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: var(--nav-bg);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      z-index: 1000;
+      padding: 0 1.5rem;
+      transition: var(--transition);
+    }
+
+    .nav-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 80px;
+      gap: 1rem;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-primary);
+      font-weight: 700;
+      font-size: 1.4rem;
+      white-space: nowrap;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      color: var(--accent-color);
+      filter: drop-shadow(0 0 8px var(--accent-color));
+    }
+
+    /* Desktop navigation */
+    .nav-menu {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      list-style: none;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .nav-item {
+      position: relative;
+      white-space: nowrap;
+    }
+
+    .nav-link {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 0.5rem 0.7rem;
+      border-radius: 8px;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .nav-link:hover {
+      color: var(--accent-color);
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    /* Desktop action buttons */
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      white-space: nowrap;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 1rem;
+    }
+
+    .icon-btn:hover {
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+
+    .login-btn {
+      background: var(--accent-color);
+      color: #fff !important;
+      text-decoration: none;
+      padding: 0.5rem 1.25rem;
+      border-radius: 20px;
+      font-weight: 600;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Dropdowns */
+    .dropdown-menu {
+      position: absolute;
+      top: 120%;
+      left: 0;
+      background: var(--dropdown-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      min-width: 200px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      box-shadow: 0 10px 25px var(--shadow-color);
+      padding: 0.5rem 0;
+    }
+
+    .nav-item.dropdown:hover .dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .nav-item.dropdown:hover .nav-link i {
+      transform: rotate(180deg);
+    }
+
+    .dropdown-link {
+      display: block;
+      padding: 0.75rem 1.5rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .dropdown-link:hover {
+      color: var(--text-primary);
+      background: rgba(99, 102, 241, 0.05);
+      padding-left: 2rem;
+    }
+
+    .nav-item:nth-last-child(2) .dropdown-menu {
+      right: 0;
+      left: auto;
+    }
+
+    /* Mobile elements */
+    .hamburger {
+      display: none;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .mobile-nav-action {
+      display: none;
+    }
+
+    /* Main content */
+    .main-content {
+      flex: 1;
+      margin-top: 80px;
+      padding: 6rem 2rem;
+      text-align: center;
+      background: radial-gradient(circle at center, rgba(99, 102, 241, 0.05) 0%, transparent 60%);
+    }
+
+    .main-title {
+      font-size: 3.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent-color), var(--text-primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .main-subtitle {
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      max-width: 650px;
+      margin: 1rem auto 0;
+    }
+
+    /* ========== FOOTER STYLES ========== */
+    .footer {
+      background: var(--dropdown-bg);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border-color);
+      padding: 3rem 2rem 1.5rem;
+      margin-top: auto;
+    }
+
+    .footer-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .footer-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .footer-brand {
+      flex: 1;
+      min-width: 250px;
+      max-width: 320px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-primary);
+      font-weight: 700;
+      font-size: 1.4rem;
+      white-space: nowrap;
+      margin-bottom: 1rem;
+    }
+
+    .footer-description {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      max-width: 260px;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      flex: 2;
+      justify-content: space-between;
+    }
+
+    .footer-column {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .footer-column h4 {
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .footer-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+
+    .footer-link:hover {
+      color: var(--accent-color);
+      transform: translateX(4px);
+    }
+
+    .footer-actions {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .footer-icon-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 1rem;
+    }
+
+    .footer-icon-btn:hover {
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    /* Responsive footer */
+    @media (max-width: 991px) {
+      .footer-grid {
+        flex-direction: column;
+        gap: 2rem;
+      }
+      .footer-links {
+        gap: 2.5rem;
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .footer-column {
+        flex: 1 1 200px;
+      }
+    }
+
+    @media (max-width: 800px) {
+      .main-title {
+        font-size: 2.5rem;
+      }
+      .footer-column {
+        flex: 1 1 45%;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .main-title {
+        font-size: 2rem;
+      }
+      .main-subtitle {
+        font-size: 1rem;
+      }
+      .main-content {
+        padding: 4rem 1.5rem;
+      }
+      .footer {
+        padding: 2rem 1.5rem 1rem;
+      }
+      .footer-links {
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      .footer-column, .newsletter-col {
+        max-width: 100% !important;
+        flex: 1 1 auto;
+      }
+    }
+
+    /* RESPONSIVE (tablet & mobile) for navbar */
+    @media (max-width: 1200px) {
+      .nav-link {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.4rem;
+      }
+      .nav-menu {
+        gap: 0.1rem;
+      }
+      .nav-actions {
+        gap: 0.4rem;
+      }
+      .login-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+      }
+    }
+
+    @media (max-width: 991px) {
+      .nav-actions {
+        display: none;
+      }
+      .hamburger {
+        display: block;
+        z-index: 1001;
+      }
+
+      .nav-menu {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 280px;
+        height: 100vh;
+        height: 100dvh;
+        background: var(--dropdown-bg);
+        backdrop-filter: blur(20px);
+        border-left: 1px solid var(--border-color);
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        padding: 90px 1.2rem 1.5rem;
+        transition: 0.35s cubic-bezier(0.77, 0, 0.175, 1);
+        box-shadow: -10px 0 30px var(--shadow-color);
+        overflow-y: auto;
+        gap: 0;
+        flex-wrap: nowrap;
+      }
+
+      html[dir="rtl"] .nav-menu {
+        right: auto;
+        left: -100%;
+        border-left: none;
+        border-right: 1px solid var(--border-color);
+      }
+
+      .nav-menu.active {
+        right: 0;
+      }
+      html[dir="rtl"] .nav-menu.active {
+        left: 0;
+        right: auto;
+      }
+
+      .nav-item {
+        width: 100%;
+        white-space: normal;
+      }
+
+      .nav-link {
+        width: 100%;
+        padding: 0.7rem 0;
+        font-size: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        border-radius: 0;
+      }
+
+      .dropdown-menu {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        max-height: 0;
+        overflow: hidden;
+        padding: 0;
+        transition: max-height 0.3s ease;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+      }
+
+      .nav-item.dropdown.active .dropdown-menu {
+        max-height: 200px;
+        padding: 0.3rem 0 0.3rem 1rem;
+      }
+
+      .dropdown-link {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
+
+      .mobile-nav-action {
+        display: flex;
+        width: 100%;
+        margin-top: 0.5rem;
+        border-top: 1px solid var(--border-color);
+        flex-direction: column;
+        gap: 0.4rem;
+        padding-top: 0.8rem;
+      }
+
+      .mobile-action-btn {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.5rem 0.8rem;
+        border-radius: 40px;
+        width: 100%;
+        justify-content: center;
+        gap: 10px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+      }
+
+      .mobile-action-btn:hover {
+        background: rgba(99, 102, 241, 0.1);
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+      }
+
+      .mobile-login-link {
+        background: var(--accent-color);
+        color: white !important;
+        text-decoration: none;
+        border: none;
+      }
+
+      .mobile-login-link:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+      }
+    }
+
+    /* Safety Demos Page Specific Styles */
+    .main-content-safety {
+      width: 100%;
+      padding-top: 80px;
+      background: var(--bg-color);
+    }
+    
+    section {
+      padding: 5rem 2rem;
+      position: relative;
+    }
+    
+    .section-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .text-center { text-align: center; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+    }
+    
+    .section-desc {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      max-width: 700px;
+      margin-bottom: 3rem;
+      line-height: 1.6;
+    }
+
+    /* Buttons */
+    .btn-primary, .btn-outline {
+      display: inline-block;
+      padding: 0.8rem 1.8rem;
+      border-radius: 30px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: var(--transition);
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+    }
+    .btn-large { padding: 1rem 2.5rem; font-size: 1.2rem; }
+    .btn-primary { background: var(--accent-color); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); transform: translateY(-3px); }
+    .btn-outline { background: transparent; color: var(--text-primary); border: 2px solid var(--accent-color); }
+    .btn-outline:hover { background: var(--accent-color); color: #fff; }
+
+    /* Split Layout */
+    .split-layout { display: flex; align-items: center; gap: 3rem; }
+    .split-layout.reverse { flex-direction: row-reverse; align-items: center; }
+    .split-text { flex: 1; }
+    .split-image { flex: 1; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px var(--shadow-color); position: relative; }
+    .split-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    /* 1. Safety Hero */
+    .safety-hero {
+      background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.95)), url('images/safety_hero.png') center/cover;
+      padding: 8rem 2rem 5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .shield-icon { font-size: 4rem; color: #10b981; margin-bottom: 1.5rem; }
+    .hero-main-title { font-size: 3.5rem; font-weight: 800; margin-bottom: 1rem; color: #fff; }
+    .hero-main-desc { font-size: 1.2rem; color: #e2e8f0; max-width: 600px; margin: 0 auto 2.5rem; }
+
+    /* 2. Target Safety Zones */
+    .safety-zones-section { background: var(--dropdown-bg); }
+
+    /* 3. Golden Rules Timeline */
+    .axe-rules-section { background: var(--bg-color); }
+    .timeline-container { position: relative; max-width: 800px; margin: 0 auto; padding-left: 40px; }
+    .timeline-container::before { content: ''; position: absolute; left: 15px; top: 0; bottom: 0; width: 4px; background: var(--border-color); border-radius: 2px; }
+    .timeline-item { position: relative; margin-bottom: 3rem; }
+    .timeline-item:last-child { margin-bottom: 0; }
+    .t-icon { position: absolute; left: -55px; top: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--accent-color); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; border: 4px solid var(--bg-color); }
+    .t-content { background: var(--dropdown-bg); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); }
+    .t-content h3 { font-size: 1.4rem; margin-bottom: 0.5rem; color: var(--text-primary); }
+    .t-content p { color: var(--text-secondary); margin: 0; line-height: 1.5; }
+
+    /* 4. Escape Protocol */
+    .escape-protocol-section { background: var(--dropdown-bg); }
+    .protocol-list { list-style: none; padding: 0; }
+    .protocol-list li { margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 15px; font-size: 1.1rem; color: var(--text-secondary); text-align: left; }
+    .protocol-list i { color: #f59e0b; font-size: 1.5rem; margin-top: 3px; }
+    .protocol-list strong { color: var(--text-primary); }
+    .mockup-bg { background: repeating-linear-gradient(45deg, #1e293b, #1e293b 20px, #0f172a 20px, #0f172a 40px); display: flex; align-items: center; justify-content: center; min-height: 400px; }
+    .emergency-button { position: relative; text-align: center; }
+    .button-ring { width: 150px; height: 150px; border-radius: 50%; background: #ef4444; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.3; animation: pulse 2s infinite; }
+    .button-core { position: relative; background: #dc2626; color: #fff; width: 120px; height: 120px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; text-align: center; border: 8px solid #7f1d1d; box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 5px 10px rgba(255,255,255,0.2); }
+    @keyframes pulse { 0% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; } 100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; } }
+
+    /* 5. Dress Code */
+    .dress-code-section { background: var(--bg-color); }
+    .gear-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 900px; margin: 0 auto; }
+    .gear-card { border-radius: 15px; overflow: hidden; background: var(--dropdown-bg); border: 1px solid var(--border-color); text-align: left; display: flex; flex-direction: column; }
+    .gear-card img { width: 100%; height: 250px !important; object-fit: cover; }
+    .no-symbol { height: 250px; display: flex; align-items: center; justify-content: center; background: #1e293b; font-size: 6rem; color: #ef4444; }
+    .g-content { padding: 2rem; flex: 1; display: flex; flex-direction: column; }
+    .g-content h3 { font-size: 1.4rem; margin-bottom: 1rem; }
+    .allowed h3 { color: #10b981; }
+    .prohibited h3 { color: #ef4444; }
+    .g-content p { color: var(--text-secondary); line-height: 1.5; margin: 0; }
+
+    /* 6. Coaches */
+    .coaches-section { background: var(--dropdown-bg); }
+    .coach-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
+    .coach-card { background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 15px; overflow: hidden; text-align: center; display: flex; flex-direction: column; height: 100%; }
+    .coach-card img { width: 100%; height: 300px; object-fit: cover; display: block; }
+    .avatar-placeholder { height: 300px; background: #1e293b; display: flex; align-items: center; justify-content: center; font-size: 5rem; color: #475569; }
+    .coach-info { padding: 2rem; display: flex; flex-direction: column; flex: 1; justify-content: flex-start; }
+    .coach-info h3 { font-size: 1.3rem; margin-bottom: 0.2rem; color: var(--text-primary); }
+    .coach-info span { display: block; color: var(--accent-color); font-weight: 600; font-size: 0.9rem; margin-bottom: 1rem; text-transform: uppercase; }
+    .coach-info p { color: var(--text-secondary); font-size: 0.95rem; }
+
+    /* 7. Sanitization */
+    .sanitization-section { background: var(--bg-color); }
+    .sani-mockup { background: #0f172a; display: flex; align-items: center; justify-content: center; gap: 2rem; min-height: 300px; font-size: 4rem; color: #38bdf8; border: 1px solid #1e293b; }
+    .clean-steps { margin-top: 2rem; }
+    .c-step { background: rgba(56, 189, 248, 0.1); border-left: 4px solid #38bdf8; padding: 1rem; margin-bottom: 1rem; border-radius: 0 8px 8px 0; color: var(--text-secondary); }
+    .c-step strong { color: var(--text-primary); }
+
+    /* 7.5 First Aid Station */
+    .first-aid-section { background: var(--dropdown-bg); }
+    
+    /* 8. FAQ */
+    .safety-faq-section { background: var(--dropdown-bg); }
+    .faq-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; text-align: left; }
+    .faq-item { background: var(--bg-color); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); }
+    .faq-item h4 { font-size: 1.2rem; margin-bottom: 1rem; color: var(--text-primary); }
+    .faq-item p { color: var(--text-secondary); line-height: 1.6; margin: 0; }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+      .split-layout { flex-direction: column; }
+      .split-layout.reverse { flex-direction: column-reverse; }
+      .hero-main-title { color: #fff; font-size: 2.8rem; }
+    }
+    @media (max-width: 680px) {
+      section { padding: 4rem 1.5rem; }
+      .video-player-mockup { height: 300px; }
+      .timeline-container { padding-left: 30px; }
+      .t-icon { left: -45px; width: 30px; height: 30px; font-size: 1rem; }
+    }
+  </style>
+  <link rel="stylesheet" href="mobile.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <script>
+    (function() {
+      const isDark = localStorage.getItem('venue_theme_dark');
+      const htmlEl = document.documentElement;
+      let currentTheme = htmlEl.getAttribute('data-theme');
+      const isAdmin = currentTheme && currentTheme.includes('admin');
+      
+      if (isDark === 'true') {
+        htmlEl.setAttribute('data-theme', isAdmin ? 'admin-dark' : 'dark');
+      } else if (isDark === 'false') {
+        if (isAdmin) {
+          htmlEl.setAttribute('data-theme', 'admin-light');
+        } else if (currentTheme === 'dark' || currentTheme === 'light') {
+          htmlEl.setAttribute('data-theme', 'light');
+        } else {
+          htmlEl.removeAttribute('data-theme');
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        document.body.addEventListener('click', (e) => {
+          const toggleBtn = e.target.closest('#theme-toggle, #mobile-theme-toggle');
+          if (toggleBtn) {
+            setTimeout(() => {
+              const theme = document.documentElement.getAttribute('data-theme');
+              const darkActive = theme === 'dark' || theme === 'admin-dark';
+              localStorage.setItem('venue_theme_dark', darkActive);
+            }, 50);
+          }
+        });
+
+        setTimeout(() => {
+          const theme = document.documentElement.getAttribute('data-theme');
+          const darkActive = theme === 'dark' || theme === 'admin-dark';
+          
+          const themeIcons = document.querySelectorAll('#theme-icon, #theme-toggle i, #mobile-theme-icon');
+          themeIcons.forEach(icon => {
+            if (darkActive) {
+              icon.classList.remove('fa-moon');
+              icon.classList.add('fa-sun');
+            } else {
+              icon.classList.remove('fa-sun');
+              icon.classList.add('fa-moon');
+            }
+          });
+        }, 100);
+      });
+    })();
+  </script>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo-container">
+        <i class="fas fa-cube" style="color: var(--accent-color); font-size: 1.8rem; filter: drop-shadow(0 0 8px var(--accent-color));"></i>
+        <span style="font-weight: 800; font-size: 1.5rem; background: linear-gradient(90deg, var(--accent-color), #9d00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase;">NEXUS</span>
+      </a>
+
+      <ul class="nav-menu" id="nav-menu">
+        <li class="nav-item dropdown">
+          <a href="index.html" class="nav-link" id="home-link">Home <i class="fas fa-chevron-down"></i></a>
+          <div class="dropdown-menu">
+            <a href="index.html" class="dropdown-link">Home 1</a>
+            <a href="./home2.html" class="dropdown-link">Home 2</a>
+          </div>
+        </li>
+        <li class="nav-item"><a href="./book_rooms.html" class="nav-link">Book Rooms/Lanes</a></li>
+        <li class="nav-item"><a href="./digital_waivers.html" class="nav-link">Digital Waivers</a></li>
+        <li class="nav-item"><a href="./team_rosters.html" class="nav-link">Team Rosters</a></li>
+        <li class="nav-item"><a href="./packages.html" class="nav-link">Packages</a></li>
+        <li class="nav-item"><a href="./Safety Demos.html" class="nav-link">Safety Demos</a></li>
+        <li class="nav-item"><a href="./Contact.html" class="nav-link">Contact</a></li>
+        <li class="nav-item dropdown">
+          <a href="javascript:void(0)" class="nav-link" id="dashboard-link">Dashboard <i class="fas fa-chevron-down"></i></a>
+          <div class="dropdown-menu">
+            <a href="./user_dashboard.html" class="dropdown-link">Users</a>
+            <a href="./admin_dashboard.html" class="dropdown-link">Admin</a>
+          </div>
+        </li>
+        <li class="mobile-nav-action">
+          <button id="mobile-theme-toggle" class="mobile-action-btn">
+            <i class="fas fa-sun" id="mobile-theme-icon"></i> Theme
+          </button>
+          <button id="mobile-rtl-toggle" class="mobile-action-btn">
+            <i class="fas fa-arrows-left-right"></i> RTL Layout
+          </button>
+          <a href="login.html" class="mobile-action-btn mobile-login-link" id="mobile-login-btn">
+            <i class="fas fa-user-circle"></i> Login
+          </a>
+        </li>
+      </ul>
+
+      <div class="nav-actions">
+        <button id="theme-toggle" class="icon-btn" title="Dark/Light Mode">
+          <i class="fas fa-sun" id="theme-icon"></i>
+        </button>
+        <button id="rtl-toggle" class="icon-btn" title="Toggle RTL Layout">
+          <i class="fas fa-arrows-left-right"></i>
+        </button>
+        <a href="login.html" class="login-btn"><i class="fas fa-user-circle"></i> Login</a>
+      </div>
+
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+    <style>
+      .nav-link.active, .dropdown-link.active {
+        color: var(--accent-color) !important;
+        font-weight: 700;
+        background: rgba(99, 102, 241, 0.08);
+        border-radius: 4px;
+      }
+    </style>
+    <script>
+      (function() {
+        let currentPath = window.location.pathname.split('/').pop() || 'index.html';
+        currentPath = decodeURIComponent(currentPath);
+        const navLinks = document.querySelectorAll('.navbar .nav-link, .navbar .dropdown-link');
+        navLinks.forEach(link => {
+          let linkHref = link.getAttribute('href');
+          if (!linkHref || linkHref.startsWith('javascript:')) return;
+          let linkPath = linkHref.split('/').pop();
+          linkPath = decodeURIComponent(linkPath);
+          if (linkPath && currentPath.toLowerCase() === linkPath.toLowerCase()) {
+            link.classList.add('active');
+            const dropdown = link.closest('.dropdown-menu');
+            if (dropdown) {
+               const parentLink = dropdown.previousElementSibling;
+               if (parentLink && parentLink.classList.contains('nav-link')) {
+                 parentLink.classList.add('active');
+               }
+            }
+          }
+        });
+      })();
+    </script>
+  </nav>
+
+  <main class="main-content-safety">
+    <!-- 1. Safety Hero Section -->
+    <section class="safety-hero text-center">
+      <div class="section-container">
+        <div class="shield-icon"><i class="fas fa-shield-alt"></i></div>
+        <h1 class="hero-main-title">Safety First, Fun Second</h1>
+        <p class="hero-main-desc">Your well-being is our top priority. We maintain strict safety protocols to ensure an unforgettable and secure experience for everyone.</p>
+        <a href="#briefing" class="btn-primary btn-large">Watch Briefing</a>
+      </div>
+    </section>
+
+    <!-- 2. Target Safety Zones -->
+    <section id="safety-zones" class="safety-zones-section">
+      <div class="section-container split-layout">
+        <div class="split-image">
+          <img src="images/safety_zone.png" alt="Axe Throwing Target Safety Zone">
+        </div>
+        <div class="split-text">
+          <h2 class="section-title">Target Safety Zones</h2>
+          <p class="section-desc" style="margin-bottom: 1.5rem;">Understanding where to stand is the most important part of axe throwing. Our lanes are clearly marked to keep you safe.</p>
+          <p class="section-desc">Before you pick up an axe, our certified coaches will walk you through the lane layout. Please familiarize yourself with the color-coded markings on the floor to ensure a safe environment for everyone.</p>
+          <ul class="protocol-list">
+            <li><i class="fas fa-exclamation-triangle"></i> <span><strong>The Red Line:</strong> The throwing line. Never cross this line unless retrieving your axe.</span></li>
+            <li><i class="fas fa-users"></i> <span><strong>The Blue Zone:</strong> The spectator area. All non-throwers must remain behind.</span></li>
+            <li><i class="fas fa-hand-paper"></i> <span><strong>Retrieval Protocol:</strong> Only one person may retrieve an axe from the target at a time.</span></li>
+            <li><i class="fas fa-shield-alt"></i> <span><strong>Coach Signals:</strong> Always wait for your coach's clear signal before beginning.</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Axe Throwing Golden Rules -->
+    <section class="axe-rules-section">
+      <div class="section-container">
+        <h2 class="section-title">The Golden Rules of Axe Throwing</h2>
+        <div class="timeline-container">
+          <div class="timeline-item">
+            <div class="t-icon"><i class="fas fa-shoe-prints"></i></div>
+            <div class="t-content">
+              <h3>1. The Stance</h3>
+              <p>Keep both feet firmly planted behind the red fault line. Never cross the line until your axe has come to a complete stop.</p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="t-icon"><i class="fas fa-hand-rock"></i></div>
+            <div class="t-content">
+              <h3>2. The Grip</h3>
+              <p>Hold the axe with a firm, two-handed grip at the base of the handle. Keep the blade perfectly straight.</p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="t-icon"><i class="fas fa-bullseye"></i></div>
+            <div class="t-content">
+              <h3>3. The Release</h3>
+              <p>Bring the axe straight back over your head and release when your arms are fully extended forward. Do not flick your wrists.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Escape Room Protocol -->
+    <section class="escape-protocol-section">
+      <div class="section-container split-layout reverse">
+        <div class="split-text">
+          <h2 class="section-title">Escape Room Protocol</h2>
+          <p class="section-desc">Our rooms are challenging, but they are never dangerous. Follow these rules to ensure a smooth.</p>
+          <ul class="protocol-list">
+            <li><i class="fas fa-door-open"></i> <span><strong>Doors are never locked:</strong> You can exit the room at any time using the marked push-bars entire.</span></li>
+            <li><i class="fas fa-video"></i> <span><strong>24/7 Monitoring:</strong> Game Masters watch and listen to your entire session at all times room.</span></li>
+            <li><i class="fas fa-hammer"></i> <span><strong>No Brute Force:</strong> If it doesn't open easily, you haven't found the right clue. Never use force.</span></li>
+          </ul>
+        </div>
+        <div class="split-image mockup-bg">
+          <div class="emergency-button">
+            <div class="button-ring"></div>
+            <div class="button-core">PRESS TO EXIT</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Dress Code & Gear -->
+    <section class="dress-code-section text-center">
+      <div class="section-container">
+        <h2 class="section-title">Dress Code & Gear</h2>
+        <p class="section-desc mx-auto">What to wear (and what to leave at home).</p>
+        <div class="gear-grid">
+          <div class="gear-card allowed">
+            <img src="images/safety_gear.png" alt="Safety Gear">
+            <div class="g-content">
+              <h3><i class="fas fa-check-circle"></i> Mandatory</h3>
+              <p>Closed-toe shoes are absolutely required. No sandals, flip-flops, or high heels permitted.</p>
+            </div>
+          </div>
+          <div class="gear-card prohibited">
+            <div class="no-symbol"><i class="fas fa-ban"></i></div>
+            <div class="g-content">
+              <h3><i class="fas fa-times-circle"></i> Prohibited</h3>
+              <p>No loose clothing that could catch on equipment. Outside axes and props are strictly forbidden.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Meet The Coaches -->
+    <section class="coaches-section">
+      <div class="section-container">
+        <h2 class="section-title text-center">Meet Your Axe Masters</h2>
+        <p class="section-desc mx-auto text-center">All our coaches are CPR certified and WATL trained.</p>
+        <div class="coach-grid">
+          <div class="coach-card">
+            <img src="images/coach_profile.png" alt="Coach Profile">
+            <div class="coach-info">
+              <h3>Alex "The Bullseye"</h3>
+              <span>Lead Safety Instructor</span>
+              <p>4 years experience, Unmatched.</p>
+            </div>
+          </div>
+          <div class="coach-card">
+            <img src="images/coach2.png" alt="Coach Profile">
+            <div class="coach-info">
+              <h3>Sarah T.</h3>
+              <span>Escape Room Supervisor</span>
+              <p>Master of puzzles and emergency.</p>
+            </div>
+          </div>
+          <div class="coach-card">
+            <img src="images/coach3.png" alt="Coach Profile">
+            <div class="coach-info">
+              <h3>Marcus R.</h3>
+              <span>Axe Coach</span>
+              <p>Former lumberjack, current safety.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Facility Sanitization -->
+    <section class="sanitization-section">
+      <div class="section-container split-layout">
+        <div class="split-image sani-mockup">
+          <i class="fas fa-spray-can"></i>
+          <i class="fas fa-pump-medical"></i>
+          <i class="fas fa-hands-wash"></i>
+        </div>
+        <div class="split-text">
+          <h2 class="section-title">Deep Cleaning Protocols</h2>
+          <p class="section-desc">We clean so you don't have to worry. Our facility undergoes rigorous sanitization between every single booking.</p>
+          <div class="clean-steps">
+            <div class="c-step"><strong>Axes:</strong> Handles wiped with hospital-grade disinfectant.</div>
+            <div class="c-step"><strong>Escape Rooms:</strong> All props and high-touch surfaces sterilized.</div>
+            <div class="c-step"><strong>Air Quality:</strong> HEPA filtration running 24/7 in all lanes and rooms.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7.5 First Aid Station -->
+    <section class="first-aid-section">
+      <div class="section-container split-layout reverse">
+        <div class="split-text">
+          <h2 class="section-title">First Aid & Medical Preparedness</h2>
+          <p class="section-desc" style="margin-bottom: 1.5rem;">We are fully equipped to handle any minor injuries and emergencies on-site.</p>
+          <p class="section-desc">Your safety and well-being are paramount. In addition to our rigorous safety protocols, our facility maintains a dedicated medical station that is fully stocked and regularly inspected to meet the highest health and safety standards.</p>
+          <ul class="protocol-list">
+            <li><i class="fas fa-medkit"></i> <span><strong>First Aid Kits:</strong> Readily available in all throwing lanes and escape rooms.</span></li>
+            <li><i class="fas fa-heartbeat"></i> <span><strong>AED On-Site:</strong> An Automated External Defibrillator is located in the main lobby.</span></li>
+            <li><i class="fas fa-user-nurse"></i> <span><strong>Trained Staff:</strong> All coaches and supervisors are certified in CPR .</span></li>
+            <li><i class="fas fa-ambulance"></i> <span><strong>Emergency Protocols:</strong> We maintain a direct line to local emergency.</span></li>
+          </ul>
+        </div>
+        <div class="split-image">
+          <img src="images/first_aid.png" alt="First Aid Station">
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. Safety FAQ -->
+    <section class="safety-faq-section text-center">
+      <div class="section-container">
+        <h2 class="section-title">Safety FAQ</h2>
+        <div class="faq-grid">
+          <div class="faq-item">
+            <h4>Can children throw axes?</h4>
+            <p>Participants must be at least 12 years old to throw axes, and anyone under 18 must be accompanied by a legal guardian guests.</p>
+          </div>
+          <div class="faq-item">
+            <h4>What if I feel claustrophobic?</h4>
+            <p>Our escape rooms are spacious and never actually locked. You can step out into the hallway at any time if you feel overwhelmed.</p>
+          </div>
+          <div class="faq-item">
+            <h4>Is alcohol allowed?</h4>
+            <p>We serve beer and wine, but we have a strict 2-drink maximum for axe throwers. Intoxicated guests will not be permitted to throw.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========== NEW FOOTER SECTION ========== -->
+  <footer id="contact" class="footer">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="footer-logo">
+        <i class="fas fa-cube" style="color: var(--accent-color); font-size: 1.8rem; filter: drop-shadow(0 0 8px var(--accent-color));"></i>
+        <span style="font-weight: 800; font-size: 1.5rem; background: linear-gradient(90deg, var(--accent-color), #9d00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase;">NEXUS</span>
+          </a>
+          <p class="footer-description">Escape Rooms & Axe Throwing — Book rooms, sign waivers, manage teams all in one dashboard.</p>
+          <div class="footer-actions">
+            <a href="javascript:void(0)" class="footer-icon-btn" title="Facebook" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="javascript:void(0)" class="footer-icon-btn" title="Twitter" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="javascript:void(0)" class="footer-icon-btn" title="Instagram" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="javascript:void(0)" class="footer-icon-btn" title="LinkedIn" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-linkedin-in"></i>
+            </a>
+            <a href="javascript:void(0)" class="footer-icon-btn" title="YouTube" style="display: inline-flex; align-items: center; justify-content: center; text-decoration: none;">
+              <i class="fab fa-youtube"></i>
+            </a>
+          </div>
+        </div>
+        <div class="footer-links">
+          <div class="footer-column">
+            <h4>Explore</h4>
+            <a href="index.html" class="footer-link">Home</a>
+            <a href="#rooms" class="footer-link">Book Rooms/Lanes</a>
+            <a href="user_dashboard.html" class="footer-link">Digital Waivers</a>
+            <a href="user_dashboard.html" class="footer-link">Team Rosters</a>
+          </div>
+          <div class="footer-column">
+            <h4>Services</h4>
+            <a href="#packages" class="footer-link">Packages</a>
+            <a href="#safety-demos" class="footer-link">Safety Demos</a>
+            <a href="#contact" class="footer-link">Contact</a>
+            <a href="user_dashboard.html" class="footer-link">Dashboard</a>
+          </div>
+          <div class="footer-column">
+            <h4>Contact Us</h4>
+            <a href="javascript:void(0)" class="footer-link" style="cursor: default;"><i class="fas fa-map-marker-alt" style="margin-right: 8px;"></i> 123 Escape Ave, NY 10001</a>
+            <a href="javascript:void(0)" class="footer-link" style="cursor: default;"><i class="fas fa-phone-alt" style="margin-right: 8px;"></i> +1 (555) 123-4567</a>
+            <a href="javascript:void(0)" class="footer-link" style="cursor: default;"><i class="fas fa-envelope" style="margin-right: 8px;"></i> hello@venuedash.com</a>
+          </div>
+          <div class="footer-column newsletter-col" style="flex: 1.5; min-width: 260px; max-width: 350px;">
+            <h4>Newsletter</h4>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.8rem; line-height: 1.4;">Subscribe to get the latest escape room updates and exclusive offers directly in your inbox.</p>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="email" placeholder="Email address" style="padding: 0.5rem 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); background: transparent; color: var(--text-primary); outline: none; width: 100%; font-family: inherit; font-size: 0.9rem;">
+              <button style="background: var(--accent-color); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; transition: var(--transition); font-weight: 600; font-family: inherit;">Subscribe</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Escape Room & Axe Throwing Venue. All rights reserved. | VenueDash — Next‑gen booking experience</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const htmlEl = document.documentElement;
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.getElementById('nav-menu');
+    const dropdowns = document.querySelectorAll('.nav-item.dropdown');
+
+    // Desktop controls
+    const themeToggleDesktop = document.getElementById('theme-toggle');
+    const themeIconDesktop = document.getElementById('theme-icon');
+    const rtlToggleDesktop = document.getElementById('rtl-toggle');
+    // Mobile controls
+    const mobileThemeBtn = document.getElementById('mobile-theme-toggle');
+    const mobileThemeIcon = document.getElementById('mobile-theme-icon');
+    const mobileRtlBtn = document.getElementById('mobile-rtl-toggle');
+    // Footer controls
+    // Removed
+
+    function updateThemeIcons(isDark) {
+      const iconClass = isDark ? 'fas fa-sun' : 'fas fa-moon';
+      if (themeIconDesktop) themeIconDesktop.className = iconClass;
+      if (mobileThemeIcon) mobileThemeIcon.className = iconClass;
+    }
+
+    const initialDark = htmlEl.getAttribute('data-theme') === 'dark';
+    updateThemeIcons(initialDark);
+
+    function toggleTheme() {
+      if (htmlEl.getAttribute('data-theme') === 'dark') {
+        htmlEl.removeAttribute('data-theme');
+        updateThemeIcons(false);
+      } else {
+        htmlEl.setAttribute('data-theme', 'dark');
+        updateThemeIcons(true);
+      }
+    }
+
+    function toggleRTL() {
+      if (htmlEl.getAttribute('dir') === 'rtl') {
+        htmlEl.removeAttribute('dir');
+      } else {
+        htmlEl.setAttribute('dir', 'rtl');
+      }
+    }
+
+    if (themeToggleDesktop) themeToggleDesktop.addEventListener('click', toggleTheme);
+    if (mobileThemeBtn) mobileThemeBtn.addEventListener('click', toggleTheme);
+    if (rtlToggleDesktop) rtlToggleDesktop.addEventListener('click', toggleRTL);
+    if (mobileRtlBtn) mobileRtlBtn.addEventListener('click', toggleRTL);
+
+    // Stable Home/Dashboard clicks (no movement)
+    const homeLink = document.getElementById('home-link');
+    const dashboardLink = document.getElementById('dashboard-link');
+    if (homeLink) {
+      homeLink.addEventListener('click', (e) => {
+        e.preventDefault();
+      });
+    }
+    if (dashboardLink) {
+      dashboardLink.addEventListener('click', (e) => {
+        e.preventDefault();
+      });
+    }
+
+    // Prevent all placeholder links from causing any scroll or navigation
+    document.querySelectorAll('a[href="javascript:void(0)"]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    });
+
+    // Mobile menu toggle
+    if (hamburger) {
+      hamburger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navMenu.classList.toggle('active');
+        hamburger.innerHTML = navMenu.classList.contains('active') ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        document.body.style.overflow = navMenu.classList.contains('active') ? 'hidden' : '';
+      });
+    }
+
+    // Mobile dropdown toggles
+    dropdowns.forEach(drop => {
+      const link = drop.querySelector('.nav-link');
+      if (link) {
+        link.addEventListener('click', (e) => {
+          if (window.innerWidth <= 991) {
+            e.preventDefault();
+            dropdowns.forEach(other => {
+              if (other !== drop && other.classList.contains('active')) other.classList.remove('active');
+            });
+            drop.classList.toggle('active');
+          }
+        });
+      }
+    });
+
+    // Close mobile menu after clicking any normal item
+    const closeTriggers = document.querySelectorAll('.nav-link:not(#home-link):not(#dashboard-link), .dropdown-link, #mobile-login-btn');
+    closeTriggers.forEach(link => {
+      link.addEventListener('click', (e) => {
+        if (e.target.closest('#mobile-theme-toggle') || e.target.closest('#mobile-rtl-toggle')) return;
+        if (window.innerWidth <= 991 && navMenu.classList.contains('active')) {
+          navMenu.classList.remove('active');
+          if (hamburger) hamburger.innerHTML = '<i class="fas fa-bars"></i>';
+          document.body.style.overflow = '';
+        }
+      });
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 991 && navMenu.classList.contains('active')) {
+        navMenu.classList.remove('active');
+        if (hamburger) hamburger.innerHTML = '<i class="fas fa-bars"></i>';
+        document.body.style.overflow = '';
+        dropdowns.forEach(d => d.classList.remove('active'));
+      }
+    });
+  </script>
+</body>
+</html>
