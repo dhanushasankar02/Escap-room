@@ -1,4 +1,4 @@
-$files = @("book_rooms.html", "Contact.html", "digital_waivers.html", "home2.html", "navbar.html", "packages.html", "packages_test.html", "digital_waivers_test.html", "Safety Demos.html", "team_rosters.html")
+$files = @("book_rooms.html", "Contact.html", "digital_waivers.html", "home2.html", "navbar.html", "packages.html", "packages_test.html", "digital_waivers_test.html", "safety demos.html", "team_rosters.html")
 
 $indexHtml = Get-Content -Path index.html -Raw
 

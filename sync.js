@@ -7,7 +7,7 @@ const files = [
   "home2.html", 
   "navbar.html", 
   "packages.html", 
-  "Safety Demos.html", 
+  "safety demos.html", 
   "team_rosters.html"
 ];
 
