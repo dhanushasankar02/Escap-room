@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" dir="ltr" data-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -270,10 +270,10 @@
             align-items: center;
             justify-content: center;
             padding: 0.5rem;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--accent-color);
             border-radius: 12px;
             background: var(--card-bg);
-            color: var(--text-primary);
+            color: var(--accent-color);
             font-size: 1.2rem;
             cursor: pointer;
             transition: var(--transition);
@@ -282,12 +282,8 @@
         .social-btn:hover {
             background: var(--input-bg);
             transform: translateY(-2px);
-            color: var(--accent-color);
+            box-shadow: 0 0 10px var(--accent-color);
         }
-
-        .social-btn.google:hover { color: #DB4437; border-color: #DB4437; }
-        .social-btn.apple:hover { color: var(--text-primary); border-color: var(--text-primary); }
-        .social-btn.facebook:hover { color: #4267B2; border-color: #4267B2; }
 
         .signup-link {
             text-align: center;
@@ -438,7 +434,14 @@
         <div class="login-card">
             <div class="login-header">
                 <a href="index.html" class="logo-container" style="display: flex; align-items: center; gap: 10px; justify-content: center; text-decoration: none; margin-bottom: 0.5rem;">
-                    <i class="fas fa-cube" style="color: var(--accent-color); font-size: 1.8rem; filter: drop-shadow(0 0 8px var(--accent-color));"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="brand-logo-svg" style="width: 1.8rem; height: 1.8rem; fill: currentColor; color: var(--accent-color); filter: drop-shadow(0 0 8px var(--accent-color)); vertical-align: middle; display: inline-block;">
+  <circle cx="40" cy="40" r="22" fill="none" stroke="currentColor" stroke-width="5" />
+  <circle cx="40" cy="40" r="11" fill="none" stroke="currentColor" stroke-width="3" />
+  <circle cx="40" cy="40" r="4" fill="currentColor" />
+  <rect x="60" y="37.5" width="30" height="5" fill="currentColor" transform="rotate(45 40 40)" />
+  <rect x="76" y="42.5" width="5" height="10" fill="currentColor" transform="rotate(45 40 40)" />
+  <rect x="84" y="42.5" width="5" height="6" fill="currentColor" transform="rotate(45 40 40)" />
+</svg>
                     <span style="font-weight: 800; font-size: 1.5rem; background: linear-gradient(90deg, var(--accent-color), #9d00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase;">NEXUS</span>
                 </a>
             </div>
@@ -529,3 +532,4 @@
     </script>
 </body>
 </html>
+
